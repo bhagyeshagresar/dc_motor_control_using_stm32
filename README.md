@@ -10,3 +10,28 @@
 6 - Resistors and Capacitors
 
 
+# Software Overview
+
+1 - Client Application /GUI that supports the following features:
+    a: Read current sensor (ADC counts)
+    b: Read current sensor (mA)
+    c: Read encoder (counts)
+    d: Read encoder (deg)
+    e: Reset encoder
+    f: Set PWM (-100 to 100)
+    g: Set current gains
+    h: Get current gains
+    i: Set position gains
+    j: Get position gains
+    k: Test current control
+    l: Go to angle (deg)
+    m: Load step trajectory
+    n: Load cubic trajectory
+    o: Execute trajectory
+    p: Unpower the motor
+    q: Quit client
+    r: Get mode
+
+
+2 - STM32 firmware for motor driver:
+    The firmware will include a low frequency position control loop(200 Hz) and a high freqeuency current control loop (5 KHz). 
