@@ -1,6 +1,6 @@
 # Brushed DC Motor Control using STM32
 
-## 🧰 Hardware
+## Hardware
 
 1. **STM32F401RE** microcontroller (MCU)  
 2. **Brushed DC Motor** with encoder  
@@ -11,7 +11,7 @@
 
 ---
 
-## 🧑‍💻 Software Overview
+## Software Overview
 
 ### 1. Client Application / GUI
 

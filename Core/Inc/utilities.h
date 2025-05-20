@@ -9,7 +9,7 @@
 #define INC_UTILITIES_H_
 
 
-enum mode
+enum mode_set
 { IDLE,
   PWM,
   ITEST,
@@ -18,14 +18,9 @@ enum mode
 };
 
 
-
-void set_mode(enum mode);
-enum mode get_mode();
-
-
-
-
-
-
+void set_mode(enum mode_set);
+enum mode_set get_mode();
+void set_pwm(int);
+int get_pwm();
 
 #endif /* INC_UTILITIES_H_ */
