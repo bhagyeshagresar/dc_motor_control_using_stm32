@@ -8,9 +8,7 @@
 #ifndef INC_ENCODER_H_
 #define INC_ENCODER_H_
 
-
-
-#define ENCODER_A GPIO_PIN_9
+#define ENCODER_A GPIO_PIN_9 //
 #define ENCODER_B GPIO_PIN_7
 
 volatile long motorPosition = 0;
