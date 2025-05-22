@@ -67,7 +67,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	char logBuff[128];
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,6 +98,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	sprintf(logBuff, "%d\r\n", motorPosition);
+	HAL_UART_Transmit(&huart2, logBuff, strlen((logBuff)), HAL_MAX_DELAY);
 
     /* USER CODE BEGIN 3 */
   }
