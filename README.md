@@ -48,7 +48,7 @@ Supports the following features:
 ### Step 1: Testing the encoder
 1. Powered the encoder on the DC motor using 3.3V from the STM32 and connected the channels A and B of the encoder to the nscope to test quadrature signals
 
-![alt text](Ccw_encoder.png)
+![alt text](C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\Ccw_encoder.png.png)
 
 2. Implemented a simple GPIO interrupt on every rising and falling edge of channel A and then increment the encoder position using simple quadrature decoding logic
 
