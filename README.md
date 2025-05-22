@@ -42,3 +42,15 @@ Supports the following features:
 
 - **Current Control Loop**: High-frequency loop running at **5 kHz**  
 - **Position Control Loop**: Lower-frequency loop running at **200 Hz**
+
+
+
+### Step 1: Testing the encoder
+1. Powered the encoder on the DC motor using 3.3V from the STM32 and connected the channels A and B of the encoder to the nscope to test quadrature signals
+
+![Alt text]("C:\Users\bhagy\OneDrive\Desktop\Ccw_encoder.png")
+
+2. Implemented a simple GPIO interrupt on every rising and falling edge of channel A and then increment the encoder position using simple quadrature decoding logic
+
+
+
