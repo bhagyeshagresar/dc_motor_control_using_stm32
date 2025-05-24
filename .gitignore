@@ -6,10 +6,7 @@
 *.bin
 
 # Ignore everything
-*
 
 # But NOT these (negation)
 !.gitignore
 !README.md
-!Core/
-!Core/**
