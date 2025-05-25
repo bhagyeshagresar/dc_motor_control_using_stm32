@@ -52,3 +52,13 @@ Supports the following features:
 
 
 ![alt text](Ccw_encoder2.jpg)
+
+
+### Step 2: Basic PWM Generation using Timer
+ 1. Configured Timer3 to generate a user defined duty cycle. The prescaler of the timer is set to 1MHz and the ARR register(max rollover counter) is set to 100.
+
+ 2. Tpwm = ARR/Prescaler = 100/1MHZ = 100 microseconds. The frequency of the PWM is 10 kHZ.
+
+![alt text](pwm_30_percent_duty_cycle.png)
+
+
