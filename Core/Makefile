@@ -1,5 +1,5 @@
 # Project Name:
-PROJECT = led-toggle
+PROJECT = Core
 
 # Driver Directory structure:
 BASE_DIR = ..
@@ -34,9 +34,9 @@ SIZE=		${TOOLCHAIN}-size
 HAL_SRCS = $(wildcard $(HAL_DIR)/Src/*.c)
 
 # Driver source files:
-SRCS =		$(CMSIS_DIR)/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f407xx.s
+SRCS =		$(CMSIS_DIR)/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f411xe.s
 SRCS+=		$(CMSIS_DIR)/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
-SRCS+=		$(BSP_DIR)/STM32F4-Discovery/stm32f4_discovery.c
+SRCS+=		$(BSP_DIR)/stm32f4xx_nucleo.c
 
 #Project source files:
 SRCS+=		$(SRC_DIR)/main.c
@@ -48,7 +48,7 @@ HAL_OBJS = ${HAL_SRCS:.c=.o}
 
 # Compiler flags.
 CFLAGS=		-g -O2 -Wall
-CFLAGS+=	-T$(LINKER_DIR)/stm32f407vg.ld
+CFLAGS+=	-T$(LINKER_DIR)/stm32f411re.ld
 CFLAGS+=	-mcpu=cortex-m4
 CFLAGS+=	-mlittle-endian -mthumb -mthumb-interwork
 CFLAGS+=	-mfloat-abi=soft -mfpu=fpv4-sp-d16
@@ -56,9 +56,9 @@ CFLAGS+=	-ffreestanding
 CFLAGS+=	--specs=nosys.specs
 
 # Preprocessor flags.
-CPPFLAGS+=	-DSTM32F407xx
+CPPFLAGS+=	-DSTM32F411xe
 CPPFLAGS+=	-I$(HAL_INC_DIR)
-CPPFLAGS+=	-I$(BASE_DIR)/Drivers/BSP/STM32F4-Discovery
+CPPFLAGS+=	-I$(BASE_DIR)/Drivers/BSP
 CPPFLAGS+=	-I$(BASE_DIR)/Drivers/CMSIS/Include
 CPPFLAGS+=	-I$(BASE_DIR)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
 CPPFLAGS+=	-I$(BASE_DIR)/Drivers/STM32F4xx_HAL_Driver/Inc
