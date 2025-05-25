@@ -41,6 +41,7 @@ SRCS+=		$(BSP_DIR)/stm32f4xx_nucleo.c
 #Project source files:
 SRCS+=		$(SRC_DIR)/main.c
 SRCS+=		$(SRC_DIR)/stm32f4xx_it.c
+SRCS+=		$(SRC_DIR)/stm32f4xx_hal_msp.c
 
 # Object files:
 OBJS=		${SRCS:.c=.o}
