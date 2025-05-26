@@ -8,10 +8,7 @@
 #include "stm32f4xx_nucleo.h"
 #include "stdio.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* User can use this section to tailor USARTx/UARTx instance used and associated 
-   resources */
+
 /* Definition for USARTx clock resources */
 #define USARTx                           USART2
 #define USARTx_CLK_ENABLE()              __HAL_RCC_USART2_CLK_ENABLE();
@@ -28,8 +25,18 @@
 #define USARTx_RX_PIN                    GPIO_PIN_3
 #define USARTx_RX_GPIO_PORT              GPIOA 
 #define USARTx_RX_AF                     GPIO_AF7_USART2
-  
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+
+
+//Clocks:
+#define SYS_CLOCK_FREQ_50_MHZ 50
+#define SYS_CLOCK_FREQ_84_MHZ 84
+#define SYS_CLOCK_FREQ_120_MHZ 120
+
+//Prototypes
+void Error_Handler(void);
+void System_Clock_Config_HSE(uint8_t clock_freq);
+void GIOP_LED_Init(void);
+void TIMER2_Init(void);
+void UART2_Init(void);
 
 #endif /* __MAIN_H */
