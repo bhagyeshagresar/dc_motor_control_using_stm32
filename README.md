@@ -60,6 +60,7 @@ Supports the following features:
  2. Tpwm = ARR/Prescaler = 100/1MHZ = 100 microseconds. The frequency of the PWM is 10 kHZ.
 
  Nscope Output with 30% duty cycle:
+ 
 ![alt text](pwm_30_percent_duty_cycle.png)
 
 

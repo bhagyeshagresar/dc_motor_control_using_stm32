@@ -47,7 +47,8 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+volatile uint8_t rx_bytes[4];
+volatile uint32_t result;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,7 +75,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	char logBuff[128];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -100,8 +101,11 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  htim3.Instance->CCR3 = 50;
+
+  //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
+  HAL_UART_Receive_IT(&huart2, &rx_bytes, 4);  // Start interrupt-based reception
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -420,6 +424,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
   }
 }
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART2)
+    {
+    	result = (rx_bytes[3] << 24) | (rx_bytes[2] << 16) | (rx_bytes[1] << 8) | (rx_bytes[0]);
+    	htim3.Instance->CCR3 = result;
+    }
+    //This callback is triggered everytime 4 bytes are received so it is necessary to call the below function to start receiving bytes again
+    HAL_UART_Receive_IT(&huart2, &rx_bytes, 4);  // Start interrupt-based reception
+
+}
+
+
+
 /* USER CODE END 4 */
 
 /**
