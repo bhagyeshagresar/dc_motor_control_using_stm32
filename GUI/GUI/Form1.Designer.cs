@@ -117,7 +117,7 @@
             this.resetEncoderBtn.Name = "resetEncoderBtn";
             this.resetEncoderBtn.Size = new System.Drawing.Size(180, 24);
             this.resetEncoderBtn.TabIndex = 12;
-            this.resetEncoderBtn.Text = "Read Encoder (Degrees)";
+            this.resetEncoderBtn.Text = "Reset Encoder";
             this.resetEncoderBtn.UseVisualStyleBackColor = true;
             // 
             // EncoderDegsTxtBox
