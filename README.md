@@ -14,6 +14,7 @@
 ## Software Overview
 
 ### 1. Client Application / GUI
+![alt text](Csharp_form_snapshot.png)
 
 Supports the following features:
 
