@@ -99,6 +99,17 @@ namespace GUI
                 MessageBox.Show("Please enter a valid number.");
             }
         }
+
+        private void readEncoderCntsClick(object sender, EventArgs e)
+        {
+            if(serialPort != null && serialPort.IsOpen)
+            {
+                string message = "a\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
     }
     
 }

@@ -11,11 +11,11 @@
 #define ENCODER_A GPIO_PIN_9 //
 #define ENCODER_B GPIO_PIN_7
 
-volatile long motorPosition = 0;
+extern volatile int motorPosition;
 
 int read_encoder_counts();
 int read_encoder_degrees();
-void reset_encoder_position(long);
+void reset_encoder_position(int);
 
 
 

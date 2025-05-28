@@ -153,6 +153,7 @@
             this.readEncoderCntsBtn.TabIndex = 8;
             this.readEncoderCntsBtn.Text = "Read Encoder (Counts)";
             this.readEncoderCntsBtn.UseVisualStyleBackColor = true;
+            this.readEncoderCntsBtn.Click += new System.EventHandler(this.readEncoderCntsClick);
             // 
             // currentAmpsTxtBox
             // 
