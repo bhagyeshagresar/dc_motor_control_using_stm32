@@ -136,6 +136,7 @@
             this.readEncoderDegsBtn.TabIndex = 10;
             this.readEncoderDegsBtn.Text = "Read Encoder (Degrees)";
             this.readEncoderDegsBtn.UseVisualStyleBackColor = true;
+            this.readEncoderDegsBtn.Click += new System.EventHandler(this.readEncoderDegreesClick);
             // 
             // encoderCntsTxtBox
             // 
@@ -171,6 +172,7 @@
             this.readCurrentAmpsBtn.TabIndex = 6;
             this.readCurrentAmpsBtn.Text = "Read Current (mA)";
             this.readCurrentAmpsBtn.UseVisualStyleBackColor = true;
+            this.readCurrentAmpsBtn.Click += new System.EventHandler(this.readCurrentAmpsClick);
             // 
             // adcCountsTxtBox
             // 
@@ -188,6 +190,7 @@
             this.readADCCountsBtn.TabIndex = 4;
             this.readADCCountsBtn.Text = "Read ADC Counts";
             this.readADCCountsBtn.UseVisualStyleBackColor = true;
+            this.readADCCountsBtn.Click += new System.EventHandler(this.readADCCountsClick);
             // 
             // motorControlGrpBox
             // 
@@ -379,6 +382,7 @@
             this.Controls.Add(this.sensorReadingsGrpBox);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.sensorReadingsGrpBox.ResumeLayout(false);
             this.sensorReadingsGrpBox.PerformLayout();
             this.motorControlGrpBox.ResumeLayout(false);

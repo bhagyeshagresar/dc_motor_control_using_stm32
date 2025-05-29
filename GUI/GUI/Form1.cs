@@ -10,7 +10,8 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using ScottPlot;
 using ScottPlot.WinForms;
-
+using System.Threading;
+using System.IO;
 
 namespace GUI
 {
@@ -18,6 +19,12 @@ namespace GUI
     {
         private int dutyCycle = 0;
         SerialPort serialPort;
+        private int encoderCounts = 0;
+        private int adcCounts = 0;
+        private int currentAmps = 0;
+        private int encoderDegrees = 0;
+        private byte[] readBuffer;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
         public Form1()
         {
             InitializeComponent();
@@ -42,6 +49,30 @@ namespace GUI
             serialPort.Open();
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Task.Run(() => SerialListener(_cts.Token));
+        }
+
+        private void SerialListener(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                string stm32_response = serialPort.ReadLine();
+
+                Console.WriteLine(stm32_response);
+
+                if (int.TryParse(stm32_response.Substring(4), out encoderCounts))
+                {
+                    // Update UI (on main thread)
+                    this.Invoke(new Action(() =>
+                    {
+                        encoderCntsTxtBox.Text = encoderCounts.ToString();
+                    }));
+                }
+
+            }
+        }
 
         private void PlotCurrentTrajectory()
         {
@@ -108,8 +139,46 @@ namespace GUI
                 byte[] buffer = Encoding.UTF8.GetBytes(message);
                 serialPort.Write(buffer, 0, buffer.Length);
 
+              
+
             }
         }
+
+        private void readADCCountsClick(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "b\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+
+        }
+
+        private void readCurrentAmpsClick(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "c\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
+
+        private void readEncoderDegreesClick(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "d\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
+
+        
     }
     
 }

@@ -49,7 +49,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 volatile uint8_t rx_bytes[4];
 volatile uint32_t result;
-uint8_t tx_bytes[4];
+uint8_t tx_bytes[100];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,14 +114,15 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  HAL_UART_Receive(&huart2, rx_bytes, 4, HAL_MAX_DELAY);
+	  HAL_UART_Receive(&huart2, rx_bytes, 2, HAL_MAX_DELAY);
 
 	  switch(rx_bytes[0]){
 	     case 'a':
 	    	 int encoder_cnts = read_encoder_counts();
-
-	    	 HAL_UART_Transmit(&huart2, tx_bytes, 4, HAL_MAX_DELAY );
+	    	 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
+	    	 HAL_UART_Transmit(&huart2, tx_bytes, 8, HAL_MAX_DELAY);
 	    	 break;
+	     case 'b':
 
 
 
@@ -423,12 +424,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-
-
-
-
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == GPIO_PIN_9){
