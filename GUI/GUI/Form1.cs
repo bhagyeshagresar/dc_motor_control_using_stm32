@@ -23,13 +23,32 @@ namespace GUI
         private int adcCounts = 0;
         private int currentAmps = 0;
         private int encoderDegrees = 0;
-        private byte[] readBuffer;
+        string stm32_response = null;
         private CancellationTokenSource _cts = new CancellationTokenSource();
         public Form1()
         {
             InitializeComponent();
             InitializeSerial();
             PlotCurrentTrajectory();
+            //serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+        }
+
+        private  void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+           /* SerialPort sp = (SerialPort)sender;
+            indata += sp.ReadExisting();
+            Console.WriteLine("Data Received:");
+            Console.Write(indata);
+            if (indata.EndsWith("<eot>"))
+            {
+                this.Invoke(new Action(() =>
+                {
+                    encoderCntsTxtBox.Text = indata;
+                    indata = null;
+                }));
+            }
+            */
+
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -58,8 +77,9 @@ namespace GUI
         {
             while (!token.IsCancellationRequested)
             {
-                string stm32_response = serialPort.ReadLine();
 
+                stm32_response = serialPort.ReadLine();
+                serialPort.DiscardInBuffer();
                 Console.WriteLine(stm32_response);
 
                 if (int.TryParse(stm32_response.Substring(4), out encoderCounts))
@@ -68,6 +88,7 @@ namespace GUI
                     this.Invoke(new Action(() =>
                     {
                         encoderCntsTxtBox.Text = encoderCounts.ToString();
+                        stm32_response = null;
                     }));
                 }
 

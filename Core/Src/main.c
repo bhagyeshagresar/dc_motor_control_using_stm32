@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <string.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
@@ -49,7 +49,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 volatile uint8_t rx_bytes[4];
 volatile uint32_t result;
-uint8_t tx_bytes[100];
+char tx_bytes[100];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,7 +85,8 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  HAL_StatusTypeDef ret;
+  char status_buff[50];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -103,10 +104,7 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
-  //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
-  //HAL_UART_Receive_IT(&huart2, &rx_bytes, 4);  // Start interrupt-based reception
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-
+  ret = HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,17 +112,30 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  HAL_UART_Receive(&huart2, rx_bytes, 2, HAL_MAX_DELAY);
+	ret = HAL_UART_Receive(&huart2, rx_bytes, 2, HAL_MAX_DELAY);
+
+	if(ret == HAL_OK){
+		 strcpy(status_buff, "received 2 bytes of data\r\n");
+	  }
+	else{
+		strcpy(status_buff, "problem with receiving data\r\n");
+	  }
 
 	  switch(rx_bytes[0]){
-	     case 'a':
-	    	 int encoder_cnts = read_encoder_counts();
-	    	 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
-	    	 HAL_UART_Transmit(&huart2, tx_bytes, 8, HAL_MAX_DELAY);
-	    	 break;
-	     case 'b':
+		 case 'a':
 
+			 int encoder_cnts = read_encoder_counts();
+			 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
+			 uint8_t buff_size = strlen(tx_bytes);
+			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
 
+			 if(ret == HAL_OK){
+			 	strcpy(status_buff, "sent bytes of data\r\n");
+			 	}
+			else{
+				strcpy(status_buff, "problem with sending data\r\n");
+			  }
+			 break;
 
 	  }
 
@@ -438,21 +449,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
   }
 }
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-//    if (huart->Instance == USART2)
-//    {
-//    	result = (rx_bytes[3] << 24) | (rx_bytes[2] << 16) | (rx_bytes[1] << 8) | (rx_bytes[0]);
-//    	htim3.Instance->CCR3 = result;
-//    }
-//    //This callback is triggered everytime 4 bytes are received so it is necessary to call the below function to start receiving bytes again
-//    HAL_UART_Receive_IT(&huart2, &rx_bytes, 4);  // Start interrupt-based reception
-
-}
-
-
 
 /* USER CODE END 4 */
 
