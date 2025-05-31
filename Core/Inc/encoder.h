@@ -10,6 +10,7 @@
 
 #define ENCODER_A GPIO_PIN_9 //
 #define ENCODER_B GPIO_PIN_7
+#define PPR 684
 
 extern volatile int motorPosition;
 

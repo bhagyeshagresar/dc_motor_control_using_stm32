@@ -33,24 +33,7 @@ namespace GUI
             //serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
         }
 
-        private  void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-        {
-           /* SerialPort sp = (SerialPort)sender;
-            indata += sp.ReadExisting();
-            Console.WriteLine("Data Received:");
-            Console.Write(indata);
-            if (indata.EndsWith("<eot>"))
-            {
-                this.Invoke(new Action(() =>
-                {
-                    encoderCntsTxtBox.Text = indata;
-                    indata = null;
-                }));
-            }
-            */
-
-        }
-
+      
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
@@ -82,15 +65,26 @@ namespace GUI
                 serialPort.DiscardInBuffer();
                 Console.WriteLine(stm32_response);
 
-                if (int.TryParse(stm32_response.Substring(4), out encoderCounts))
+                if (stm32_response.StartsWith("ENC:") && int.TryParse(stm32_response.Substring(4), out encoderCounts))
                 {
                     // Update UI (on main thread)
                     this.Invoke(new Action(() =>
                     {
                         encoderCntsTxtBox.Text = encoderCounts.ToString();
-                        stm32_response = null;
+                        
                     }));
                 }
+
+                if (stm32_response.StartsWith("ENC_DEG:") && int.TryParse(stm32_response.Substring(8), out encoderDegrees))
+                {
+                    // Update UI (on main thread)
+                    this.Invoke(new Action(() =>
+                    {
+                        EncoderDegsTxtBox.Text = encoderDegrees.ToString();
+                       
+                    }));
+                }
+   
 
             }
         }
@@ -169,7 +163,7 @@ namespace GUI
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                string message = "b\n";
+                string message = "d\n";
                 byte[] buffer = Encoding.UTF8.GetBytes(message);
                 serialPort.Write(buffer, 0, buffer.Length);
 
@@ -192,7 +186,7 @@ namespace GUI
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                string message = "d\n";
+                string message = "b\n";
                 byte[] buffer = Encoding.UTF8.GetBytes(message);
                 serialPort.Write(buffer, 0, buffer.Length);
 

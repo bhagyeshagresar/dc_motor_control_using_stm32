@@ -50,6 +50,7 @@ UART_HandleTypeDef huart2;
 volatile uint8_t rx_bytes[4];
 volatile uint32_t result;
 char tx_bytes[100];
+uint8_t buff_size = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,7 +104,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
   ret = HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
@@ -126,7 +126,7 @@ int main(void)
 
 			 int encoder_cnts = read_encoder_counts();
 			 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
-			 uint8_t buff_size = strlen(tx_bytes);
+			 buff_size = strlen(tx_bytes);
 			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
@@ -136,6 +136,21 @@ int main(void)
 				strcpy(status_buff, "problem with sending data\r\n");
 			  }
 			 break;
+
+		 case 'b':
+			 int encoder_cnts_deg = read_encoder_degrees();
+			 sprintf(tx_bytes, "ENC_DEG:%d\n", encoder_cnts_deg);
+			 buff_size = strlen(tx_bytes);
+			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+
+			 if(ret == HAL_OK){
+				strcpy(status_buff, "sent bytes of data\r\n");
+				}
+			else{
+				strcpy(status_buff, "problem with sending data\r\n");
+			  }
+			 break;
+
 
 	  }
 
