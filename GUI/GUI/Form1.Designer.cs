@@ -119,6 +119,7 @@
             this.resetEncoderBtn.TabIndex = 12;
             this.resetEncoderBtn.Text = "Reset Encoder";
             this.resetEncoderBtn.UseVisualStyleBackColor = true;
+            this.resetEncoderBtn.Click += new System.EventHandler(this.resetEncoderClick);
             // 
             // EncoderDegsTxtBox
             // 

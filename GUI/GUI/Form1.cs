@@ -84,7 +84,18 @@ namespace GUI
                        
                     }));
                 }
-   
+
+                if (stm32_response.StartsWith("RESET_ENC_CNTS:") && int.TryParse(stm32_response.Substring(15), out encoderCounts))
+                {
+                    // Update UI (on main thread)
+                    this.Invoke(new Action(() =>
+                    {
+                        //this should read encoder cnts as zero
+                        encoderCntsTxtBox.Text = encoderCounts.ToString();
+
+                    }));
+                }
+
 
             }
         }
@@ -159,6 +170,30 @@ namespace GUI
             }
         }
 
+        private void readEncoderDegreesClick(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "b\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
+
+
+        private void resetEncoderClick(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "c\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
+
+
         private void readADCCountsClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
@@ -182,18 +217,6 @@ namespace GUI
             }
         }
 
-        private void readEncoderDegreesClick(object sender, EventArgs e)
-        {
-            if (serialPort != null && serialPort.IsOpen)
-            {
-                string message = "b\n";
-                byte[] buffer = Encoding.UTF8.GetBytes(message);
-                serialPort.Write(buffer, 0, buffer.Length);
-
-            }
-        }
-
-        
     }
     
 }

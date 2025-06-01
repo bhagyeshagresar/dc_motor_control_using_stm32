@@ -16,8 +16,10 @@ int read_encoder_counts(){
 
 
 int read_encoder_degrees(){
-	return 1234;
+	return (int)((360/PPR)*motorPosition);
 }
 
 
-
+void reset_encoder_position(){
+	motorPosition = 0;
+}
