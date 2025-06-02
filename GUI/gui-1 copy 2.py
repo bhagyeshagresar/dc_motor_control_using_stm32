@@ -1,10 +1,12 @@
+import threading
+import time
 import serial
 import serial.tools.list_ports
 import customtkinter as ctk
 from tkinter import PhotoImage # Keep for potential future icon use
 
 # --- Constants for Styling ---
-APP_NAME = "NOVAFLUX PWM Modulator XE" # XE for Xtreme Edition ;)
+APP_NAME = "BG ROBOTICS PWM Modulator XE" # XE for Xtreme Edition ;)
 WINDOW_SIZE = "550x850" # Slightly larger for more space
 
 # Color Palette (Refined Sci-Fi Dark Theme)
@@ -84,6 +86,37 @@ def setup_serial_connection():
     conn_info.configure(text="Link Status: FAILED", text_color=COLOR_ERROR)
     return False
 
+def show_startup_animation():
+    splash = ctk.CTk()
+    splash.title("Initializing...")
+    splash.geometry("500x300")
+    splash.configure(fg_color=COLOR_BACKGROUND)
+    splash.resizable(False, False)
+
+    splash_label = ctk.CTkLabel(splash, text="BG ROBOTICS Systems Booting", font=FONT_TITLE, text_color=COLOR_ACCENT_PRIMARY)
+    splash_label.pack(expand=True)
+
+    # Hide main window
+    root.withdraw()
+
+    # Animation state
+    dots = ["", ".", "..", "..."]
+    i = 0
+
+    def update_label():
+        nonlocal i
+        splash_label.configure(text=f"BG ROBOTICS Systems Booting{dots[i % 4]}")
+        i += 1
+        if i < 3:  # runs ~3 seconds (10 * 300ms)
+            splash.after(300, update_label)
+        else:
+            splash.destroy()
+            root.deiconify()
+
+    splash.after(100, update_label)
+    splash.mainloop()
+
+
 # --- Core Logic Functions ---
 def update_duty_from_slider(value):
     duty_val = int(value)
@@ -110,7 +143,7 @@ def update_freq_from_slider(value):
 def update_freq_from_entry():
     if freq_entry.get().isdigit():
         val = int(freq_entry.get())
-        val = max(100, min(10000, val)) # Clamp value
+        val = max(100, min(1000, val)) # Clamp value
         freq_slider.set(val)
         # send_frequency() # Slider's command will call this
     # else: let send_frequency handle non-digit error
@@ -145,12 +178,12 @@ def send_frequency():
     freq_text = freq_entry.get()
     if freq_text.isdigit():
         freq = int(freq_text)
-        if 100 <= freq <= 10000:
+        if 100 <= freq <= 1000:
             uart_cmd = f"F:{freq}\n"
             ser.write(uart_cmd.encode())
-            status_label.configure(text=f"FREQUENCY CALIBRATED: {freq} Hz", text_color=COLOR_ACCENT_SECONDARY)
+            status_label.configure(text=f"FREQUENCY CALIBRATED: {freq} Hz", text_color=COLOR_TEXT)
         else:
-            status_label.configure(text="FREQ RANGE ERROR: 100-10000 Hz", text_color=COLOR_ERROR)
+            status_label.configure(text="FREQ RANGE ERROR: 100-1000 Hz", text_color=COLOR_ERROR)
     else:
         status_label.configure(text="INPUT INVALID: Numeric Freq Required", text_color=COLOR_ERROR)
 
@@ -206,7 +239,7 @@ def create_control_section(parent, title_text, unit_text, default_value, from_va
     entry.insert(0, str(default_value))
     entry.pack(side="left", padx=(0, 10))
 
-    slider = ctk.CTkSlider(input_row_frame, from_=from_val, to=to_val, number_of_steps=(to_val - from_val),
+    slider = ctk.CTkSlider(input_row_frame, from_=from_val, to=to_val,
                            button_color=COLOR_ACCENT_PRIMARY, button_hover_color=COLOR_ACCENT_GLOW,
                            progress_color=COLOR_ACCENT_SECONDARY, fg_color=COLOR_WIDGET_BG)
     slider.set(default_value)
@@ -219,7 +252,6 @@ def create_control_section(parent, title_text, unit_text, default_value, from_va
     entry.bind("<Return>", lambda event: entry_update_cmd()) # Update slider on Enter
     entry.bind("<FocusOut>", lambda event: entry_update_cmd()) # Update slider when focus leaves
     slider.configure(command=slider_update_cmd)
-
 
     # Progress bar for duty cycle
     pb = None
@@ -264,8 +296,13 @@ duty_entry, duty_slider, duty_progressbar = create_control_section(
 ctk.CTkFrame(main_content_frame, height=2, fg_color=COLOR_WIDGET_BG, corner_radius=0).pack(fill="x", padx=20, pady=15)
 
 # === FREQUENCY CONTROL ===
+# freq_entry, freq_slider, _ = create_control_section(
+#     main_content_frame, "OSCILLATION FREQUENCY", "Hz", 1000, 100, 10000, [500, 1000, 2000, 5000, 10000],
+#     update_freq_from_entry, update_freq_from_slider, send_frequency
+# )
+
 freq_entry, freq_slider, _ = create_control_section(
-    main_content_frame, "OSCILLATION FREQUENCY", "Hz", 1000, 100, 10000, [500, 1000, 2000, 5000, 10000],
+    main_content_frame, "OSCILLATION FREQUENCY", "Hz", 500, 100, 1000, [100, 250, 500, 750, 1000],
     update_freq_from_entry, update_freq_from_slider, send_frequency
 )
 
@@ -291,7 +328,7 @@ status_label.pack(pady=10, padx=10)
 instr_frame = ctk.CTkFrame(main_content_frame, fg_color="transparent", border_color=COLOR_WIDGET_BG, border_width=1, corner_radius=CORNER_RADIUS)
 instr_frame.pack(pady=10, padx=10, fill="x")
 ctk.CTkLabel(instr_frame, text="SYSTEM DIRECTIVES", font=FONT_SUBHEADER, text_color=COLOR_TEXT_SUBTLE).pack(pady=(10,5))
-instructions_text = """• Ensure NovaFlux Modulator is securely linked to target device.
+instructions_text = """• Ensure BG ROBOTICS Modulator is securely linked to target device.
 • Calibrate Oscillation Frequency prior to Thrust Modulation.
 • Monitor telemetry for optimal performance parameters.
 • IMMEDIATE ACTION: Utilize Emergency Shutdown for critical system halts.
@@ -300,7 +337,7 @@ instructions_label = ctk.CTkLabel(instr_frame, text=instructions_text,
                                  font=FONT_LABEL, justify="left", text_color=COLOR_TEXT_SUBTLE,
                                  wraplength=480)
 instructions_label.pack(anchor="w", padx=15, pady=(0,15))
-
+# instructions_label.pack(pady=(0, 10), padx=10)
 
 # --- Footer / Connection Info ---
 footer_frame = ctk.CTkFrame(root, fg_color="transparent", height=30)
@@ -314,10 +351,14 @@ version_label = ctk.CTkLabel(footer_frame, text=f"{APP_NAME} v1.XE",
                              font=FONT_SMALL, text_color=COLOR_TEXT_SUBTLE)
 version_label.pack(side="right")
 
+footer = ctk.CTkLabel(root, text="BG ROBOTICS™ | Firmware v1.0 | Developed by <ChatGPT>", 
+                      font=FONT_SMALL, text_color=COLOR_TEXT_SUBTLE)
+footer.pack(pady=(5, 10))
+
 
 # --- Initialize Serial and Start GUI ---
 root.after(500, setup_serial_connection) # Delay slightly to allow GUI to draw first
-
+show_startup_animation()
 root.mainloop()
 
 # --- Cleanup ---

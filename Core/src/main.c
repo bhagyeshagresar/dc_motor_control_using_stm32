@@ -5,6 +5,8 @@
 #define TIMER_CLOCK_FREQ 84000000UL  // 84 MHz timer clock
 TIM_HandleTypeDef TIM2_Handler;
 
+ADC_HandleTypeDef hadc1;
+
 volatile uint8_t frequency = 1000;
 volatile uint8_t duty = 50;
 
@@ -133,42 +135,6 @@ void USART2_IRQHandler(void)
     }
 }
 
-// void USART2_IRQHandler(void)
-// {
-//     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);  // Onboard LED toggle on Nucleo
-//     if (USART2->SR & USART_SR_RXNE)
-//     {
-//         char ch = USART2->DR;
-
-//         // End of command
-//         if (ch == '\n' || uart_cmd_pos >= sizeof(uart_cmd_buffer) - 1) {
-//             uart_cmd_buffer[uart_cmd_pos] = '\0';  // Null terminate
-//             uart_cmd_pos = 0;
-
-//             // Check for D:xx pattern
-//             if (uart_cmd_buffer[0] == 'D' && uart_cmd_buffer[1] == ':') {
-//                 int new_duty = atoi((char*)&uart_cmd_buffer[2]);
-//                 if (new_duty >= 0 && new_duty <= 100) {
-//                     duty = new_duty;  // UPDATE THE GLOBAL VARIABLE!
-//                     Set_PWM_DutyCycle(&TIM2_Handler, duty);
-//                 }
-//             }
-//             // Optional: Add frequency control
-//             else if (uart_cmd_buffer[0] == 'F' && uart_cmd_buffer[1] == ':') {
-//                 int new_freq = atoi((char*)&uart_cmd_buffer[2]);
-//                 if (new_freq >= 100 && new_freq <= 10000) {
-//                     frequency = new_freq;  // UPDATE THE GLOBAL VARIABLE!
-//                     Set_PWM_Frequency(&TIM2_Handler, frequency);
-//                     // Reapply duty cycle after frequency change
-//                     Set_PWM_DutyCycle(&TIM2_Handler, duty);
-//                 }
-//             }
-//         } else {
-//             uart_cmd_buffer[uart_cmd_pos++] = ch;
-//         }
-//     }
-// }
-
 void GIOP_LED_Init(void)
 {
     // Configure PA0 as TIM2_CH1 (AF1)
@@ -254,13 +220,52 @@ void SystemClock_Config(void)
         Error_Handler();
 }
 
+void ADC1_Init(void)
+{
+    __HAL_RCC_ADC1_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_1;  // PA1 = ADC1_IN1
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    hadc1.Instance = ADC1;
+    hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+    hadc1.Init.ScanConvMode = DISABLE;
+    hadc1.Init.ContinuousConvMode = DISABLE;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.NbrOfConversion = 1;
+    HAL_ADC_Init(&hadc1);
+}
+
+uint16_t Read_Potentiometer(void)
+{
+    ADC_ChannelConfTypeDef sConfig = {0};
+    sConfig.Channel = ADC_CHANNEL_1;  // PA1
+    sConfig.Rank = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    uint16_t adc_val = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+
+    return adc_val;
+}
+
 int main(void)
 {
     HAL_Init();
     SystemClock_Config();
     GIOP_LED_Init();
     UART2_Init();
-    TIMER2_Init();    
+    TIMER2_Init();
+    ADC1_Init();
 
 // Set desired frequency and duty cycle
     if (Set_PWM_Frequency(&TIM2_Handler, frequency) != 0)
@@ -286,8 +291,13 @@ int main(void)
             // Reapply duty cycle after frequency change
             Set_PWM_DutyCycle(&TIM2_Handler, duty);
         }
-
         __WFI(); // Wait for interrupt - low power
+
+        // Read potentiometer and map to 0–100% duty cycle
+        uint16_t adc_val = Read_Potentiometer();  // 0–4095
+        uint8_t pot_duty = (adc_val * 100) / 4095;
+        // Set_PWM_DutyCycle(&TIM2_Handler, pot_duty);
+        // HAL_Delay(50);  // ~20 updates per second
     }
 }
 
