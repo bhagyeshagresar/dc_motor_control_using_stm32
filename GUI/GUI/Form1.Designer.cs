@@ -60,6 +60,8 @@
             this.currentKpTxtBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.iTestPlot = new ScottPlot.WinForms.FormsPlot();
+            this.statusLabel = new System.Windows.Forms.Label();
+            this.statusTextBox = new System.Windows.Forms.TextBox();
             this.sensorReadingsGrpBox.SuspendLayout();
             this.motorControlGrpBox.SuspendLayout();
             this.setPositionGainsGrpBox.SuspendLayout();
@@ -368,16 +370,34 @@
             // iTestPlot
             // 
             this.iTestPlot.DisplayScale = 0F;
-            this.iTestPlot.Location = new System.Drawing.Point(433, 15);
+            this.iTestPlot.Location = new System.Drawing.Point(420, 106);
             this.iTestPlot.Name = "iTestPlot";
             this.iTestPlot.Size = new System.Drawing.Size(869, 443);
             this.iTestPlot.TabIndex = 5;
+            // 
+            // statusLabel
+            // 
+            this.statusLabel.AutoSize = true;
+            this.statusLabel.Location = new System.Drawing.Point(417, 36);
+            this.statusLabel.Name = "statusLabel";
+            this.statusLabel.Size = new System.Drawing.Size(55, 20);
+            this.statusLabel.TabIndex = 6;
+            this.statusLabel.Text = "Status";
+            // 
+            // statusTextBox
+            // 
+            this.statusTextBox.Location = new System.Drawing.Point(420, 63);
+            this.statusTextBox.Name = "statusTextBox";
+            this.statusTextBox.Size = new System.Drawing.Size(100, 22);
+            this.statusTextBox.TabIndex = 7;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1532, 923);
+            this.ClientSize = new System.Drawing.Size(1340, 923);
+            this.Controls.Add(this.statusTextBox);
+            this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.iTestPlot);
             this.Controls.Add(this.motorControlGrpBox);
             this.Controls.Add(this.sensorReadingsGrpBox);
@@ -393,6 +413,7 @@
             this.setCurrentGainsGrpBox.ResumeLayout(false);
             this.setCurrentGainsGrpBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -430,6 +451,8 @@
         private System.Windows.Forms.Button testCurrentControlBtn;
         private System.Windows.Forms.Button goToAngleBtn;
         private ScottPlot.WinForms.FormsPlot iTestPlot;
+        private System.Windows.Forms.Label statusLabel;
+        private System.Windows.Forms.TextBox statusTextBox;
     }
 }
 

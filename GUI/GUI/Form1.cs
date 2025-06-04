@@ -96,65 +96,49 @@ namespace GUI
                     }));
                 }
 
+                if (stm32_response.StartsWith("PWM_REQ:"))
+                {
+                    if (int.TryParse(pwmTextBox.Text, out dutyCycle))
+                    {
+                        if (serialPort != null && serialPort.IsOpen)
+                        {
+                            byte[] data = BitConverter.GetBytes(dutyCycle); // little endian by default
+                            serialPort.Write(data, 0, data.Length);
+                            statusTextBox.Text = "Duty Cycle set to:" + dutyCycle.ToString();
+                            // Optional: Show a message or status update
+                            //MessageBox.Show("Sent: " + dutyCycle);
+                        }
+                        else
+                        {
+                            //MessageBox.Show("Serial port not open.");
+                        }
+                    }
+                    else
+                    {
+                        // Invalid input
+                        //MessageBox.Show("Please enter a valid number.");
+                    }
+                }
+
 
             }
         }
 
-        private void PlotCurrentTrajectory()
-        {
-            double frequencyHz = 100;        // 100 Hz square wave
-            double amplitude = 200;          // ±200 mA
-            double durationMs = 40;          // Show 4 cycles (10 ms per cycle)
-            double sampleRate = 10000;       // 0.1 ms resolution
-
-            int pointCount = (int)(durationMs * sampleRate / 1000);
-            double[] timeMs = new double[pointCount];
-            double[] currentmA = new double[pointCount];
-
-            for (int i = 0; i < pointCount; i++)
-            {
-                timeMs[i] = i * (1000.0 / sampleRate); // in ms
-                double tSec = timeMs[i] / 1000.0;
-                currentmA[i] = amplitude * Math.Sign(Math.Sin(2 * Math.PI * frequencyHz * tSec));
-            }
-
-
-            var plt = iTestPlot.Plot;
-            plt.Clear();
-            plt.Add.Scatter(timeMs, currentmA);
-            plt.Title("Reference Current : 100 Hz Square Wave");
-            plt.XLabel("Time (ms)");
-            plt.YLabel("Current (mA)");
-
-            plt.Axes.SetLimitsX(0, 40); // X axis from 0 ms to 40 ms
-            
-            iTestPlot.Refresh();
-
-        }
+       
 
 
         private void sendDutyCycleButtonClick(object sender, EventArgs e)
         {
-            if (int.TryParse(pwmTextBox.Text, out dutyCycle))
+            if (serialPort != null && serialPort.IsOpen)
             {
-                if (serialPort != null && serialPort.IsOpen)
-                {
-                    byte[] data = BitConverter.GetBytes(dutyCycle); // little endian by default
-                    serialPort.Write(data, 0, data.Length);
+                string message = "f\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+                
+                // Optional: Show a message or status update
+                //MessageBox.Show("Sent: " + dutyCycle);
+            }
             
-                    // Optional: Show a message or status update
-                    MessageBox.Show("Sent: " + dutyCycle);
-                }
-                else
-                {
-                    MessageBox.Show("Serial port not open.");
-                }
-            }
-            else
-            {
-                // Invalid input
-                MessageBox.Show("Please enter a valid number.");
-            }
         }
 
         private void readEncoderCntsClick(object sender, EventArgs e)
@@ -210,11 +194,43 @@ namespace GUI
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                string message = "c\n";
+                string message = "e\n";
                 byte[] buffer = Encoding.UTF8.GetBytes(message);
                 serialPort.Write(buffer, 0, buffer.Length);
 
             }
+        }
+
+        private void PlotCurrentTrajectory()
+        {
+            double frequencyHz = 100;        // 100 Hz square wave
+            double amplitude = 200;          // ±200 mA
+            double durationMs = 40;          // Show 4 cycles (10 ms per cycle)
+            double sampleRate = 10000;       // 0.1 ms resolution
+
+            int pointCount = (int)(durationMs * sampleRate / 1000);
+            double[] timeMs = new double[pointCount];
+            double[] currentmA = new double[pointCount];
+
+            for (int i = 0; i < pointCount; i++)
+            {
+                timeMs[i] = i * (1000.0 / sampleRate); // in ms
+                double tSec = timeMs[i] / 1000.0;
+                currentmA[i] = amplitude * Math.Sign(Math.Sin(2 * Math.PI * frequencyHz * tSec));
+            }
+
+
+            var plt = iTestPlot.Plot;
+            plt.Clear();
+            plt.Add.Scatter(timeMs, currentmA);
+            plt.Title("Reference Current : 100 Hz Square Wave");
+            plt.XLabel("Time (ms)");
+            plt.YLabel("Current (mA)");
+
+            plt.Axes.SetLimitsX(0, 40); // X axis from 0 ms to 40 ms
+
+            iTestPlot.Refresh();
+
         }
 
     }
