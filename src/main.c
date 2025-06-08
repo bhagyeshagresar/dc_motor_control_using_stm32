@@ -182,7 +182,8 @@ void TIMER2_Init(void)
     TIM2_PWM_Init.OCFastMode = TIM_OCFAST_DISABLE;
     TIM2_PWM_Init.Pulse = 500;  // 50% duty (will be updated)
 
-    if (HAL_TIM_PWM_ConfigChannel(&TIM2_Handler, &TIM2_PWM_Init, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_PWM_ConfigChannel(&TIM2_Handler, &TIM2_PWM_Init,
+        TIM_CHANNEL_1) != HAL_OK)
         Error_Handler();
 
     // Start PWM
