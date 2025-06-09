@@ -55,6 +55,7 @@ volatile uint32_t result;
 char tx_bytes[100];
 volatile int encoder_cnts = 0;
 volatile int encoder_cnts_deg = 0;
+volatile int current_adc_cnts = 0;
 uint8_t buff_size = 0;
 /* USER CODE END PV */
 
@@ -111,6 +112,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
   //HAL_UART_Receive_IT(&huart2, pwm_rx_bytes, 4);  // Start interrupt-based reception
+  ret = current_sensor_init(&hi2c1);
+
+  if(ret == HAL_OK){
+  		 strcpy(status_buff, "successfully initialised the current sensor\r\n");
+  }
+  else{
+		strcpy(status_buff, "problem with initializing the current sensor\r\n");
+	  }
+
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
@@ -185,6 +195,20 @@ int main(void)
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
 			}
+			else{
+				strcpy(status_buff, "problem with sending data\r\n");
+			  }
+			 break;
+
+		 case 'd':
+			 current_adc_cnts = read_adc_counts();
+			 sprintf(tx_bytes, "ADC_CNTS:%d\n", current_adc_cnts);
+			 buff_size = strlen(tx_bytes);
+			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+
+			 if(ret == HAL_OK){
+				strcpy(status_buff, "sent bytes of data\r\n");
+				}
 			else{
 				strcpy(status_buff, "problem with sending data\r\n");
 			  }
