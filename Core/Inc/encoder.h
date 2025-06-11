@@ -14,6 +14,7 @@
 
 extern volatile int motorPosition;
 
+
 int read_encoder_counts();
 int read_encoder_degrees();
 void reset_encoder_position();
