@@ -493,10 +493,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM4)
     {
-        // Your 1ms task here: sample encoder, compute velocity, etc.
+    	motorVelocity = ((motorPosition - oldMotorPosition)*ENCODER_VEL_SAMPLE_FREQ);
+    	oldMotorPosition = motorPosition;
     }
-}
 
+}
 
 
 /*
