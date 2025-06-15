@@ -56,6 +56,7 @@ char tx_bytes[100];
 volatile int encoder_cnts = 0;
 volatile int encoder_cnts_deg = 0;
 volatile int current_adc_cnts = 0;
+volatile int current_mA = 0;
 uint8_t buff_size = 0;
 /* USER CODE END PV */
 
@@ -130,6 +131,7 @@ int main(void)
 
 	  switch(rx_bytes[0]){
 		 case 'a':
+			 //send encoder counts
 			 encoder_cnts = read_encoder_counts();
 			 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
@@ -144,6 +146,7 @@ int main(void)
 			 break;
 
 		 case 'b':
+			 //send encoder counts in degrees
 			 encoder_cnts_deg = read_encoder_degrees();
 			 sprintf(tx_bytes, "ENC_DEG:%d\n", encoder_cnts_deg);
 			 buff_size = strlen(tx_bytes);
@@ -158,6 +161,7 @@ int main(void)
 			 break;
 
 		 case 'c':
+			 //reset encoder
 			 reset_encoder_position();
 			 sprintf(tx_bytes, "RESET_ENC_CNTS:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
@@ -172,12 +176,15 @@ int main(void)
 			 break;
 
 		 case 'f':
+			 //send response to the GUI
 			 sprintf(tx_bytes, "PWM_REQ:\n");
 			 buff_size = strlen(tx_bytes);
 			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
 
+			 //read the duty cycle from the GUI
 			 HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
 
+			 //Set the new duty cycle
 			 //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
 			 result = (pwm_rx_bytes[3] << 24) | (pwm_rx_bytes[2] << 16) | (pwm_rx_bytes[1] << 8) | (pwm_rx_bytes[0]);
 			 htim3.Instance->CCR3 = result;
@@ -191,6 +198,7 @@ int main(void)
 			 break;
 
 		 case 'd':
+			 //send adc counts
 			 current_adc_cnts = read_adc_counts();
 			 sprintf(tx_bytes, "ADC_CNTS:%d\n", current_adc_cnts);
 			 buff_size = strlen(tx_bytes);
@@ -203,6 +211,22 @@ int main(void)
 				strcpy(status_buff, "problem with sending data\r\n");
 			  }
 			 break;
+
+		 case 'e':
+			 //read current in amps
+			 current_mA = read_current_amps();
+			 sprintf(tx_bytes, "CURR_mA:%d\n", current_mA);
+			 buff_size = strlen(tx_bytes);
+			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+
+			 if(ret == HAL_OK){
+				strcpy(status_buff, "sent bytes of data\r\n");
+				}
+			else{
+				strcpy(status_buff, "problem with sending data\r\n");
+			  }
+			 break;
+
 	  }
     /* USER CODE END WHILE */
 

@@ -2,17 +2,40 @@
  * isense.c
  *
  *  Created on: May 31, 2025
- *      Author: bhagy
+ *      Author: Bhagyesh Agresar
  */
 
 #include "isense.h"
 
-volatile int adc_cnts = 0;
-volatile int current_amp = 0;
+volatile int shunt_adc_cnts = 0;
+volatile int current = 0;
 
 int read_adc_counts(){
+
+	uint8_t shunt_adc_data[2];
+
+	HAL_I2C_Mem_Read(&I2C_Handle, INA219_ADDR, INA219_SHUNT_REG, I2C_MEMADD_SIZE_8BIT, shunt_adc_data, 2, 100);
+
+	shunt_adc_cnts = (uint32_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
+
 	return adc_cnts;
+
 }
+
+
+int read_current_amps(){
+	uint8_t current_amps_data[2];
+
+	HAL_I2C_Mem_Read(&I2C_Handle, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);
+
+	current = (uint32_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
+
+	return current_amp;
+
+
+}
+
+
 
 
 HAL_StatusTypeDef current_sensor_init(I2C_HandleTypeDef I2C_Handle){

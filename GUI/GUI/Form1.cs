@@ -96,6 +96,30 @@ namespace GUI
                     }));
                 }
 
+                if (stm32_response.StartsWith("CURR_mA:") && int.TryParse(stm32_response.Substring(8), out currentAmps))
+                {
+                    // Update UI (on main thread)
+                    this.Invoke(new Action(() =>
+                    {
+                        //this should read encoder cnts as zero
+                        currentAmpsTxtBox.Text = currentAmps.ToString();
+
+                    }));
+                }
+
+                if (stm32_response.StartsWith("ADC_CNTS:") && int.TryParse(stm32_response.Substring(9), out adcCounts))
+                {
+                    // Update UI (on main thread)
+                    this.Invoke(new Action(() =>
+                    {
+                        //this should read encoder cnts as zero
+                        adcCountsTxtBox.Text = adcCounts.ToString();
+
+                    }));
+                }
+
+
+
                 if (stm32_response.StartsWith("PWM_REQ:"))
                 {
                     if (int.TryParse(pwmTextBox.Text, out dutyCycle))
@@ -124,9 +148,7 @@ namespace GUI
             }
         }
 
-       
-
-
+       //Send the desired duty cycle
         private void sendDutyCycleButtonClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
@@ -141,6 +163,7 @@ namespace GUI
             
         }
 
+        //read raw encoder cnts
         private void readEncoderCntsClick(object sender, EventArgs e)
         {
             if(serialPort != null && serialPort.IsOpen)
@@ -154,6 +177,7 @@ namespace GUI
             }
         }
 
+        //read encoder cnts in degrees
         private void readEncoderDegreesClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
@@ -165,7 +189,7 @@ namespace GUI
             }
         }
 
-
+        //reset encoder counts
         private void resetEncoderClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
@@ -177,7 +201,7 @@ namespace GUI
             }
         }
 
-
+        //read current sensor adc counts(shunt voltage)
         private void readADCCountsClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
@@ -190,6 +214,7 @@ namespace GUI
 
         }
 
+        //read current sensor reading in mA
         private void readCurrentAmpsClick(object sender, EventArgs e)
         {
             if (serialPort != null && serialPort.IsOpen)
