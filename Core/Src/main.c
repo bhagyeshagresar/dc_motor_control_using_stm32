@@ -22,7 +22,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
+#include "isense.h"
 #include <string.h>
+#include <stdio.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,8 +52,8 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-volatile uint8_t pwm_rx_bytes[4];
-volatile uint8_t rx_bytes[100];
+uint8_t pwm_rx_bytes[4];
+uint8_t rx_bytes[100];
 volatile uint32_t result;
 char tx_bytes[100];
 volatile int encoder_cnts = 0;
@@ -111,7 +114,25 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  ret = current_sensor_init(&hi2c1);
+  //ret = current_sensor_init(&hi2c1);
+
+
+  //test
+  uint8_t buffer[2];
+  ret = HAL_I2C_Mem_Read(&hi2c1, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
+
+
+  if(ret != HAL_OK){
+	  strcpy(status_buff, "Error configuring the current sensor");
+  }
+  buff_size = strlen(status_buff);
+
+  ret = HAL_UART_Transmit(&huart2, (uint8_t*)status_buff, buff_size, HAL_MAX_DELAY);
+
+  if(ret != HAL_OK){
+  	  strcpy(status_buff, "Error transmitting data over UART");
+    }
+
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
@@ -135,7 +156,7 @@ int main(void)
 			 encoder_cnts = read_encoder_counts();
 			 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 			 	strcpy(status_buff, "sent bytes of data\r\n");
@@ -150,7 +171,7 @@ int main(void)
 			 encoder_cnts_deg = read_encoder_degrees();
 			 sprintf(tx_bytes, "ENC_DEG:%d\n", encoder_cnts_deg);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -165,7 +186,7 @@ int main(void)
 			 reset_encoder_position();
 			 sprintf(tx_bytes, "RESET_ENC_CNTS:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -179,7 +200,7 @@ int main(void)
 			 //send response to the GUI
 			 sprintf(tx_bytes, "PWM_REQ:\n");
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 //read the duty cycle from the GUI
 			 HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
@@ -202,7 +223,7 @@ int main(void)
 			 current_adc_cnts = read_adc_counts();
 			 sprintf(tx_bytes, "ADC_CNTS:%d\n", current_adc_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -217,7 +238,7 @@ int main(void)
 			 current_mA = read_current_amps();
 			 sprintf(tx_bytes, "CURR_mA:%d\n", current_mA);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, tx_bytes, buff_size, HAL_MAX_DELAY);
+			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");

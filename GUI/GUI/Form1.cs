@@ -128,7 +128,14 @@ namespace GUI
                         {
                             byte[] data = BitConverter.GetBytes(dutyCycle); // little endian by default
                             serialPort.Write(data, 0, data.Length);
-                            statusTextBox.Text = "Duty Cycle set to:" + dutyCycle.ToString();
+
+                            this.Invoke(new Action(() =>
+                            {
+                                //this should read encoder cnts as zero
+                                statusTextBox.Text = "Duty Cycle set to:" + dutyCycle.ToString();
+
+                            }));
+
                             // Optional: Show a message or status update
                             //MessageBox.Show("Sent: " + dutyCycle);
                         }

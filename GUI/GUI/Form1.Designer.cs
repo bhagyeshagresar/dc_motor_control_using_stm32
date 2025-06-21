@@ -380,7 +380,7 @@
             this.statusLabel.AutoSize = true;
             this.statusLabel.Location = new System.Drawing.Point(417, 36);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(55, 20);
+            this.statusLabel.Size = new System.Drawing.Size(44, 16);
             this.statusLabel.TabIndex = 6;
             this.statusLabel.Text = "Status";
             // 
@@ -388,7 +388,7 @@
             // 
             this.statusTextBox.Location = new System.Drawing.Point(420, 63);
             this.statusTextBox.Name = "statusTextBox";
-            this.statusTextBox.Size = new System.Drawing.Size(100, 22);
+            this.statusTextBox.Size = new System.Drawing.Size(464, 22);
             this.statusTextBox.TabIndex = 7;
             // 
             // Form1

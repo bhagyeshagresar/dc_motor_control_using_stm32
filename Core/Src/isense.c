@@ -6,11 +6,13 @@
  */
 
 #include "isense.h"
+#include "stm32f4xx_hal.h"
+
 
 volatile int shunt_adc_cnts = 0;
 volatile int current = 0;
 
-int read_adc_counts(){
+int read_adc_counts(I2C_HandleTypeDef I2C_Handle){
 
 	uint8_t shunt_adc_data[2];
 
@@ -18,24 +20,22 @@ int read_adc_counts(){
 
 	shunt_adc_cnts = (uint32_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
 
-	return adc_cnts;
+	return shunt_adc_cnts;
 
 }
 
 
-int read_current_amps(){
+int read_current_amps(I2C_HandleTypeDef I2C_Handle){
 	uint8_t current_amps_data[2];
 
 	HAL_I2C_Mem_Read(&I2C_Handle, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);
 
-	current = (uint32_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
+	current = (uint32_t)((current_amps_data[0] << 8) | (current_amps_data[1]));
 
-	return current_amp;
+	return current;
 
 
 }
-
-
 
 
 HAL_StatusTypeDef current_sensor_init(I2C_HandleTypeDef I2C_Handle){
@@ -51,6 +51,10 @@ HAL_StatusTypeDef current_sensor_init(I2C_HandleTypeDef I2C_Handle){
 
 	//Write the default config value
 	ret = HAL_I2C_Mem_Write(&I2C_Handle, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, config_data, 2, 100);
+
+	if(ret != HAL_OK){
+		return ret;
+	}
 
 	calibration_data[0] = (calibration_value >> 8) & 0xFF; //MSB
 	calibration_data[1] = (calibration_value) & 0xFF; //LSB
