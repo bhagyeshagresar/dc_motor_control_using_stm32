@@ -23,7 +23,7 @@
 extern volatile int adc_cnts;
 extern volatile int current_amp;
 
-HAL_StatusTypeDef current_sensor_init();
+void current_sensor_init(char* error_buffer, I2C_HandleTypeDef* I2C_Handle);
 int read_adc_counts();
 int read_current_amps();
 

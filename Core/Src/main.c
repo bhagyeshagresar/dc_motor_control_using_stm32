@@ -40,7 +40,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define MSG_SIZE 100
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -97,7 +97,7 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   HAL_StatusTypeDef ret;
-  char status_buff[50];
+  char status_buff[MSG_SIZE];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -114,24 +114,23 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  //ret = current_sensor_init(&hi2c1);
-
+  current_sensor_init(status_buff, &hi2c1);
 
   //test
-  uint8_t buffer[2];
-  ret = HAL_I2C_Mem_Read(&hi2c1, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
+  //char buffer[2];
+  //ret = HAL_I2C_Mem_Read(&hi2c1, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
 
 
-  if(ret != HAL_OK){
-	  strcpy(status_buff, "Error configuring the current sensor");
+  if (strcmp(status_buff, "") == 0) {
+      strcpy(status_buff, "Successfully configured the current sensor\n");
   }
-  buff_size = strlen(status_buff);
 
-  ret = HAL_UART_Transmit(&huart2, (uint8_t*)status_buff, buff_size, HAL_MAX_DELAY);
+  buff_size = strlen(status_buff);
+  ret = HAL_UART_Transmit(&huart2, status_buff, buff_size, HAL_MAX_DELAY);
 
   if(ret != HAL_OK){
   	  strcpy(status_buff, "Error transmitting data over UART");
-    }
+  }
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
@@ -446,7 +445,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
