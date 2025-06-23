@@ -125,11 +125,12 @@ int main(void)
       strcpy(status_buff, "Successfully configured the current sensor\n");
   }
 
+  //strcpy(status_buff, "Test!!!\n");
   buff_size = strlen(status_buff);
   ret = HAL_UART_Transmit(&huart2, status_buff, buff_size, HAL_MAX_DELAY);
 
   if(ret != HAL_OK){
-  	  strcpy(status_buff, "Error transmitting data over UART");
+  	 //this need to be handled using an LED or something
   }
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
@@ -219,7 +220,7 @@ int main(void)
 
 		 case 'd':
 			 //send adc counts
-			 current_adc_cnts = read_adc_counts();
+			 current_adc_cnts = read_adc_counts(&hi2c1);
 			 sprintf(tx_bytes, "ADC_CNTS:%d\n", current_adc_cnts);
 			 buff_size = strlen(tx_bytes);
 			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
@@ -234,7 +235,7 @@ int main(void)
 
 		 case 'e':
 			 //read current in amps
-			 current_mA = read_current_amps();
+			 current_mA = read_current_amps(&hi2c1);
 			 sprintf(tx_bytes, "CURR_mA:%d\n", current_mA);
 			 buff_size = strlen(tx_bytes);
 			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
@@ -445,7 +446,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;

@@ -1,5 +1,7 @@
 # Brushed DC Motor Control using STM32
 
+This blog covers the latest updates for this project: [text](https://bhagyeshagresar.blogspot.com/2025/06/building-dc-motor-control-system-with.html)
+
 ## Hardware
 
 1. **STM32F401RE** microcontroller (MCU)  
