@@ -9,8 +9,8 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 
-volatile int shunt_adc_cnts = 0;
-volatile int current = 0;
+volatile int16_t shunt_adc_cnts = 0;
+volatile int16_t current = 0;
 
 int read_adc_counts(I2C_HandleTypeDef* I2C_Handle){
 
@@ -18,7 +18,7 @@ int read_adc_counts(I2C_HandleTypeDef* I2C_Handle){
 
 	HAL_I2C_Mem_Read(I2C_Handle, INA219_ADDR, INA219_SHUNT_REG, I2C_MEMADD_SIZE_8BIT, shunt_adc_data, 2, 100);
 
-	shunt_adc_cnts = (uint32_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
+	shunt_adc_cnts = (int16_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
 
 	return shunt_adc_cnts;
 
@@ -30,7 +30,7 @@ int read_current_amps(I2C_HandleTypeDef* I2C_Handle){
 
 	HAL_I2C_Mem_Read(I2C_Handle, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);
 
-	current = (uint32_t)((current_amps_data[0] << 8) | (current_amps_data[1]));
+	current = (int16_t)((current_amps_data[0] << 8) | (current_amps_data[1]));
 
 	return current;
 
@@ -38,12 +38,14 @@ int read_current_amps(I2C_HandleTypeDef* I2C_Handle){
 }
 
 
+
+
 void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle){
 	HAL_StatusTypeDef ret;
 	//char error_buff[100];
 	uint8_t config_data[2];
 	uint8_t calibration_data[2];
-	uint16_t config_value = 0x399F; //Default power on reset value
+	uint16_t config_value = 0x39FF; //12bit and 128 samples
 	uint16_t calibration_value = 0x1000; //Based on current_lsb of 0.1mA/bit, Datasheet Pg. 17, Eqn 4
 
 	strcpy(error_buffer, "");

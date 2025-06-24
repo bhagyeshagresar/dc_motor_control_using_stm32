@@ -19,6 +19,8 @@
 #define INA219_PWR_REG			0x03
 #define INA219_CALIBRTN_REG 	0x05
 
+#define CURRENT_LSB 0.0001f
+
 
 extern volatile int adc_cnts;
 extern volatile int current_amp;

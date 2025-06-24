@@ -39,8 +39,8 @@
             this.readEncoderCntsBtn = new System.Windows.Forms.Button();
             this.currentAmpsTxtBox = new System.Windows.Forms.TextBox();
             this.readCurrentAmpsBtn = new System.Windows.Forms.Button();
-            this.adcCountsTxtBox = new System.Windows.Forms.TextBox();
-            this.readADCCountsBtn = new System.Windows.Forms.Button();
+            this.shuntVoltageTxtBox = new System.Windows.Forms.TextBox();
+            this.readShuntVoltageBtn = new System.Windows.Forms.Button();
             this.motorControlGrpBox = new System.Windows.Forms.GroupBox();
             this.setPositionGainsGrpBox = new System.Windows.Forms.GroupBox();
             this.goToAngleBtn = new System.Windows.Forms.Button();
@@ -104,8 +104,8 @@
             this.sensorReadingsGrpBox.Controls.Add(this.readEncoderCntsBtn);
             this.sensorReadingsGrpBox.Controls.Add(this.currentAmpsTxtBox);
             this.sensorReadingsGrpBox.Controls.Add(this.readCurrentAmpsBtn);
-            this.sensorReadingsGrpBox.Controls.Add(this.adcCountsTxtBox);
-            this.sensorReadingsGrpBox.Controls.Add(this.readADCCountsBtn);
+            this.sensorReadingsGrpBox.Controls.Add(this.shuntVoltageTxtBox);
+            this.sensorReadingsGrpBox.Controls.Add(this.readShuntVoltageBtn);
             this.sensorReadingsGrpBox.Location = new System.Drawing.Point(15, 15);
             this.sensorReadingsGrpBox.Name = "sensorReadingsGrpBox";
             this.sensorReadingsGrpBox.Size = new System.Drawing.Size(368, 277);
@@ -177,23 +177,23 @@
             this.readCurrentAmpsBtn.UseVisualStyleBackColor = true;
             this.readCurrentAmpsBtn.Click += new System.EventHandler(this.readCurrentAmpsClick);
             // 
-            // adcCountsTxtBox
+            // shuntVoltageTxtBox
             // 
-            this.adcCountsTxtBox.Location = new System.Drawing.Point(236, 49);
-            this.adcCountsTxtBox.Name = "adcCountsTxtBox";
-            this.adcCountsTxtBox.ReadOnly = true;
-            this.adcCountsTxtBox.Size = new System.Drawing.Size(116, 22);
-            this.adcCountsTxtBox.TabIndex = 5;
+            this.shuntVoltageTxtBox.Location = new System.Drawing.Point(236, 49);
+            this.shuntVoltageTxtBox.Name = "shuntVoltageTxtBox";
+            this.shuntVoltageTxtBox.ReadOnly = true;
+            this.shuntVoltageTxtBox.Size = new System.Drawing.Size(116, 22);
+            this.shuntVoltageTxtBox.TabIndex = 5;
             // 
-            // readADCCountsBtn
+            // readShuntVoltageBtn
             // 
-            this.readADCCountsBtn.Location = new System.Drawing.Point(22, 47);
-            this.readADCCountsBtn.Name = "readADCCountsBtn";
-            this.readADCCountsBtn.Size = new System.Drawing.Size(180, 24);
-            this.readADCCountsBtn.TabIndex = 4;
-            this.readADCCountsBtn.Text = "Read ADC Counts";
-            this.readADCCountsBtn.UseVisualStyleBackColor = true;
-            this.readADCCountsBtn.Click += new System.EventHandler(this.readADCCountsClick);
+            this.readShuntVoltageBtn.Location = new System.Drawing.Point(22, 47);
+            this.readShuntVoltageBtn.Name = "readShuntVoltageBtn";
+            this.readShuntVoltageBtn.Size = new System.Drawing.Size(180, 24);
+            this.readShuntVoltageBtn.TabIndex = 4;
+            this.readShuntVoltageBtn.Text = "Read Shunt Voltage";
+            this.readShuntVoltageBtn.UseVisualStyleBackColor = true;
+            this.readShuntVoltageBtn.Click += new System.EventHandler(this.readADCCountsClick);
             // 
             // motorControlGrpBox
             // 
@@ -430,8 +430,8 @@
         private System.Windows.Forms.Button readEncoderCntsBtn;
         private System.Windows.Forms.TextBox currentAmpsTxtBox;
         private System.Windows.Forms.Button readCurrentAmpsBtn;
-        private System.Windows.Forms.TextBox adcCountsTxtBox;
-        private System.Windows.Forms.Button readADCCountsBtn;
+        private System.Windows.Forms.TextBox shuntVoltageTxtBox;
+        private System.Windows.Forms.Button readShuntVoltageBtn;
         private System.Windows.Forms.GroupBox motorControlGrpBox;
         private System.Windows.Forms.Button setCurrentGainsBtn;
         private System.Windows.Forms.Label label2;

@@ -20,7 +20,7 @@ namespace GUI
         private int dutyCycle = 0;
         SerialPort serialPort;
         private int encoderCounts = 0;
-        private int adcCounts = 0;
+        private int shuntVoltage = 0;
         private int currentAmps = 0;
         private int encoderDegrees = 0;
         string stm32_response = null;
@@ -102,18 +102,20 @@ namespace GUI
                     this.Invoke(new Action(() =>
                     {
                         //this should read encoder cnts as zero
-                        currentAmpsTxtBox.Text = currentAmps.ToString();
+                        double current_milliAmps= currentAmps * 0.1;
+                        currentAmpsTxtBox.Text = current_milliAmps.ToString();
 
                     }));
                 }
 
-                if (stm32_response.StartsWith("ADC_CNTS:") && int.TryParse(stm32_response.Substring(9), out adcCounts))
+                if (stm32_response.StartsWith("ADC_CNTS:") && int.TryParse(stm32_response.Substring(9), out shuntVoltage))
                 {
                     // Update UI (on main thread)
                     this.Invoke(new Action(() =>
                     {
                         //this should read encoder cnts as zero
-                        adcCountsTxtBox.Text = adcCounts.ToString();
+                        double shunt_voltage_volts = shuntVoltage * 0.00001;
+                        shuntVoltageTxtBox.Text = shunt_voltage_volts.ToString();
 
                     }));
                 }
