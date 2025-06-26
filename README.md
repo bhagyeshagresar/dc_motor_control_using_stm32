@@ -18,26 +18,6 @@ This blog covers the latest updates for this project: [text](https://bhagyeshagr
 ### 1. Client Application / GUI
 ![alt text](Csharp_form_snapshot.png)
 
-Supports the following features:
-
-- `a:` Read current sensor (ADC counts)  
-- `b:` Read current sensor (mA)  
-- `c:` Read encoder (counts)  
-- `d:` Read encoder (degrees)  
-- `e:` Reset encoder  
-- `f:` Set PWM (range: -100 to 100)  
-- `g:` Set current gains  
-- `h:` Get current gains  
-- `i:` Set position gains  
-- `j:` Get position gains  
-- `k:` Test current control  
-- `l:` Go to angle (degrees)  
-- `m:` Load step trajectory  
-- `n:` Load cubic trajectory  
-- `o:` Execute trajectory  
-- `p:` Unpower the motor  
-- `q:` Quit client  
-- `r:` Get current mode
 
 ---
 
