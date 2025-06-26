@@ -8,10 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
-using ScottPlot;
-using ScottPlot.WinForms;
 using System.Threading;
 using System.IO;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace GUI
 {
@@ -25,15 +24,95 @@ namespace GUI
         private int encoderDegrees = 0;
         string stm32_response = null;
         private CancellationTokenSource _cts = new CancellationTokenSource();
+
+
+
+        private Series currentSeries;
+        private ChartArea chartArea;
+        private double timeMs = 0;
+        private double sampleIntervalMs = 0.1; // 10 kHz sampling rate
+        private double frequencyHz = 100;
+        private double amplitude = 200;
+        private int maxPoints = 400; // Show last 40 ms (at 0.1 ms per point)
         public Form1()
         {
             InitializeComponent();
             InitializeSerial();
-            PlotCurrentTrajectory();
+            //PlotCurrentTrajectory();
+            SetupChart();
+            SetupTimer();
             //serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
         }
 
-      
+
+        private void SetupChart()
+        {
+            chart_CurrentControl.Series.Clear();
+            chart_CurrentControl.ChartAreas.Clear();
+
+            chartArea = new ChartArea();
+            chartArea.AxisX.Title = "Time (ms)";
+            chartArea.AxisX.TitleFont = new Font(new FontFamily("Arial"), 10, FontStyle.Bold);
+            chartArea.AxisY.Title = "Current (mA)";
+            chartArea.AxisY.TitleFont = new Font("Arial", 10, FontStyle.Bold); // Bold Y-axis label
+
+            chartArea.AxisX.Minimum = 0;
+            chartArea.AxisX.Maximum = 40;
+            chartArea.AxisY.Minimum = -amplitude * 1.2;
+            chartArea.AxisY.Maximum = amplitude * 1.2;
+
+            chartArea.AxisX.MajorGrid.Enabled = false;
+            chartArea.AxisY.MajorGrid.Enabled = false;
+
+            chart_CurrentControl.ChartAreas.Add(chartArea);
+
+            currentSeries = new Series("Current");
+            currentSeries.ChartType = SeriesChartType.Line;
+            currentSeries.BorderWidth = 2;
+            chart_CurrentControl.Series.Add(currentSeries);
+
+            // Set chart title with styling
+            chart_CurrentControl.Titles.Clear();
+            Title chartTitle = new Title("Reference Current : 100 Hz Square Wave");
+            chartTitle.Font = new Font("Arial", 12, FontStyle.Bold);
+            chartTitle.Alignment = ContentAlignment.TopCenter;
+            chart_CurrentControl.Titles.Add(chartTitle);
+
+            chart_CurrentControl.DoubleBuffered(true); // Reduce flicker
+        }
+        private void SetupTimer()
+        {
+            timer_ChartUpdate.Interval = 1; // 1 ms timer tick
+            timer_ChartUpdate.Tick += UpdatePlot;
+            timer_ChartUpdate.Start();
+        }
+
+
+        private void UpdatePlot(object sender, EventArgs e)
+        {
+            double tSec = timeMs / 1000.0;
+            double current = amplitude * Math.Sign(Math.Sin(2 * Math.PI * frequencyHz * tSec));
+
+            currentSeries.Points.AddXY(timeMs, current);
+
+            // Remove old points to keep the window within 40ms
+            while (currentSeries.Points.Count > maxPoints)
+            {
+                currentSeries.Points.RemoveAt(0);
+            }
+
+            // Adjust X-axis to scroll with time
+            if (timeMs > 40)
+            {
+                chartArea.AxisX.Minimum = timeMs - 40;
+                chartArea.AxisX.Maximum = timeMs;
+            }
+
+            timeMs += sampleIntervalMs;
+        }
+
+
+
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
@@ -235,37 +314,7 @@ namespace GUI
             }
         }
 
-        private void PlotCurrentTrajectory()
-        {
-            double frequencyHz = 100;        // 100 Hz square wave
-            double amplitude = 200;          // ±200 mA
-            double durationMs = 40;          // Show 4 cycles (10 ms per cycle)
-            double sampleRate = 10000;       // 0.1 ms resolution
-
-            int pointCount = (int)(durationMs * sampleRate / 1000);
-            double[] timeMs = new double[pointCount];
-            double[] currentmA = new double[pointCount];
-
-            for (int i = 0; i < pointCount; i++)
-            {
-                timeMs[i] = i * (1000.0 / sampleRate); // in ms
-                double tSec = timeMs[i] / 1000.0;
-                currentmA[i] = amplitude * Math.Sign(Math.Sin(2 * Math.PI * frequencyHz * tSec));
-            }
-
-
-            var plt = iTestPlot.Plot;
-            plt.Clear();
-            plt.Add.Scatter(timeMs, currentmA);
-            plt.Title("Reference Current : 100 Hz Square Wave");
-            plt.XLabel("Time (ms)");
-            plt.YLabel("Current (mA)");
-
-            plt.Axes.SetLimitsX(0, 40); // X axis from 0 ms to 40 ms
-
-            iTestPlot.Refresh();
-
-        }
+       
 
     }
     

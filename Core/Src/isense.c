@@ -12,11 +12,11 @@
 volatile int16_t shunt_adc_cnts = 0;
 volatile int16_t current = 0;
 
-int read_adc_counts(I2C_HandleTypeDef* I2C_Handle){
+int read_adc_counts(I2C_HandleTypeDef* I2C_Handle_Ptr){
 
 	uint8_t shunt_adc_data[2];
 
-	HAL_I2C_Mem_Read(I2C_Handle, INA219_ADDR, INA219_SHUNT_REG, I2C_MEMADD_SIZE_8BIT, shunt_adc_data, 2, 100);
+	HAL_I2C_Mem_Read(I2C_Handle_Ptr, INA219_ADDR, INA219_SHUNT_REG, I2C_MEMADD_SIZE_8BIT, shunt_adc_data, 2, 100);
 
 	shunt_adc_cnts = (int16_t)(shunt_adc_data[0] << 8) | (shunt_adc_data[1]);
 
@@ -25,10 +25,10 @@ int read_adc_counts(I2C_HandleTypeDef* I2C_Handle){
 }
 
 
-int read_current_amps(I2C_HandleTypeDef* I2C_Handle){
+int read_current_amps(I2C_HandleTypeDef* I2C_Handle_Ptr){
 	uint8_t current_amps_data[2];
 
-	HAL_I2C_Mem_Read(I2C_Handle, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);
+	HAL_I2C_Mem_Read(I2C_Handle_Ptr, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);
 
 	current = (int16_t)((current_amps_data[0] << 8) | (current_amps_data[1]));
 
@@ -38,9 +38,7 @@ int read_current_amps(I2C_HandleTypeDef* I2C_Handle){
 }
 
 
-
-
-void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle){
+void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle_Ptr){
 	HAL_StatusTypeDef ret;
 	//char error_buff[100];
 	uint8_t config_data[2];
@@ -52,7 +50,7 @@ void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle){
 
 	//Do a test read
 	char buffer[2];
-	ret = HAL_I2C_Mem_Read(I2C_Handle, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
+	ret = HAL_I2C_Mem_Read(I2C_Handle_Ptr, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
 
 	if(ret != HAL_OK){
 		strcpy(error_buffer, "Test Read for I2C failed\n");
@@ -64,7 +62,7 @@ void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle){
 	config_data[1] = (config_value) & 0xFF; //LSB
 
 	//Write the default config value
-	ret = HAL_I2C_Mem_Write(I2C_Handle, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, config_data, 2, 100);
+	ret = HAL_I2C_Mem_Write(I2C_Handle_Ptr, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, config_data, 2, 100);
 
 	if(ret != HAL_OK){
 		strcpy(error_buffer, "problem writing data to the configuration register\n");
@@ -75,7 +73,7 @@ void current_sensor_init(char * error_buffer, I2C_HandleTypeDef* I2C_Handle){
 	calibration_data[1] = (calibration_value) & 0xFF; //LSB
 
 	//Write the calculated calibration value
-	ret = HAL_I2C_Mem_Write(I2C_Handle, INA219_ADDR, INA219_CALIBRTN_REG, I2C_MEMADD_SIZE_8BIT, calibration_data, 2, 100);
+	ret = HAL_I2C_Mem_Write(I2C_Handle_Ptr, INA219_ADDR, INA219_CALIBRTN_REG, I2C_MEMADD_SIZE_8BIT, calibration_data, 2, 100);
 
 	if(ret != HAL_OK){
 		strcpy(error_buffer, "problem writing data to the calibration register\n");

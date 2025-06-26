@@ -28,6 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.pwmTextBox = new System.Windows.Forms.TextBox();
             this.setDutyCycleLabel = new System.Windows.Forms.Label();
             this.sendPwmBtn = new System.Windows.Forms.Button();
@@ -59,13 +63,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.currentKpTxtBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.iTestPlot = new ScottPlot.WinForms.FormsPlot();
             this.statusLabel = new System.Windows.Forms.Label();
             this.statusTextBox = new System.Windows.Forms.TextBox();
+            this.chart_CurrentControl = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.timer_ChartUpdate = new System.Windows.Forms.Timer(this.components);
             this.sensorReadingsGrpBox.SuspendLayout();
             this.motorControlGrpBox.SuspendLayout();
             this.setPositionGainsGrpBox.SuspendLayout();
             this.setCurrentGainsGrpBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart_CurrentControl)).BeginInit();
             this.SuspendLayout();
             // 
             // pwmTextBox
@@ -367,14 +373,6 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Ki";
             // 
-            // iTestPlot
-            // 
-            this.iTestPlot.DisplayScale = 0F;
-            this.iTestPlot.Location = new System.Drawing.Point(420, 106);
-            this.iTestPlot.Name = "iTestPlot";
-            this.iTestPlot.Size = new System.Drawing.Size(869, 443);
-            this.iTestPlot.TabIndex = 5;
-            // 
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
@@ -391,14 +389,30 @@
             this.statusTextBox.Size = new System.Drawing.Size(464, 22);
             this.statusTextBox.TabIndex = 7;
             // 
+            // chart_CurrentControl
+            // 
+            chartArea1.Name = "ChartArea1";
+            this.chart_CurrentControl.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart_CurrentControl.Legends.Add(legend1);
+            this.chart_CurrentControl.Location = new System.Drawing.Point(429, 123);
+            this.chart_CurrentControl.Name = "chart_CurrentControl";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart_CurrentControl.Series.Add(series1);
+            this.chart_CurrentControl.Size = new System.Drawing.Size(802, 473);
+            this.chart_CurrentControl.TabIndex = 8;
+            this.chart_CurrentControl.Text = "chart1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1340, 923);
+            this.Controls.Add(this.chart_CurrentControl);
             this.Controls.Add(this.statusTextBox);
             this.Controls.Add(this.statusLabel);
-            this.Controls.Add(this.iTestPlot);
             this.Controls.Add(this.motorControlGrpBox);
             this.Controls.Add(this.sensorReadingsGrpBox);
             this.Name = "Form1";
@@ -412,6 +426,7 @@
             this.setPositionGainsGrpBox.PerformLayout();
             this.setCurrentGainsGrpBox.ResumeLayout(false);
             this.setCurrentGainsGrpBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart_CurrentControl)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -450,9 +465,10 @@
         private System.Windows.Forms.GroupBox setCurrentGainsGrpBox;
         private System.Windows.Forms.Button testCurrentControlBtn;
         private System.Windows.Forms.Button goToAngleBtn;
-        private ScottPlot.WinForms.FormsPlot iTestPlot;
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.TextBox statusTextBox;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart_CurrentControl;
+        private System.Windows.Forms.Timer timer_ChartUpdate;
     }
 }
 
