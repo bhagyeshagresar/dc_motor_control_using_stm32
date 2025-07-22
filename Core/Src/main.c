@@ -17,15 +17,17 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
+
+#include <string.h>
+#include <stdio.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
-#include "isense.h"
-#include <string.h>
-#include <stdio.h>
-
+#include "utilities.h"
+#include "current.h"
+#include "ina219.h"
+#include "main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
@@ -70,6 +73,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -113,7 +117,10 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C1_Init();
   MX_TIM4_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim4);
   current_sensor_init(status_buff, &hi2c1);
 
   //test
@@ -156,7 +163,7 @@ int main(void)
 			 encoder_cnts = read_encoder_counts();
 			 sprintf(tx_bytes, "ENC:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 			 	strcpy(status_buff, "sent bytes of data\r\n");
@@ -171,7 +178,7 @@ int main(void)
 			 encoder_cnts_deg = read_encoder_degrees();
 			 sprintf(tx_bytes, "ENC_DEG:%d\n", encoder_cnts_deg);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -186,7 +193,7 @@ int main(void)
 			 reset_encoder_position();
 			 sprintf(tx_bytes, "RESET_ENC_CNTS:%d\n", encoder_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -196,14 +203,15 @@ int main(void)
 			  }
 			 break;
 
+
 		 case 'f':
 			 //send response to the GUI
 			 sprintf(tx_bytes, "PWM_REQ:\n");
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 //read the duty cycle from the GUI
-			 HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
+			 ret = HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
 
 			 //Set the new duty cycle
 			 //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
@@ -218,12 +226,17 @@ int main(void)
 			  }
 			 break;
 
+		 case 'p':
+			 //stop the motor
+			 htim3.Instance->CCR3 = 0;
+			 break;
+
 		 case 'd':
 			 //send adc counts
 			 current_adc_cnts = read_adc_counts(&hi2c1);
 			 sprintf(tx_bytes, "ADC_CNTS:%d\n", current_adc_cnts);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -238,7 +251,7 @@ int main(void)
 			 current_mA = read_current_amps(&hi2c1);
 			 sprintf(tx_bytes, "CURR_mA:%d\n", current_mA);
 			 buff_size = strlen(tx_bytes);
-			 HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -248,6 +261,34 @@ int main(void)
 			  }
 			 break;
 
+		 case 'k':
+			 //set the mode to current test
+			 set_mode(ITEST);
+
+			 break;
+
+		 case 'g':
+			//set the current gains by reading kp and ki over serial and update the current control kp and ki
+
+			//Send response to the GUI
+			sprintf(tx_bytes, "CURR_Kp_Ki\n");
+			buff_size = strlen(tx_bytes);
+			HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+
+		    //TODO: read the Kp and Ki from GUI
+
+
+			//TODO: update kp and ki in the firmware
+
+
+
+		   break;
+
+		 case 'h':
+			 //get current gains
+
+
+		   break;
 	  }
     /* USER CODE END WHILE */
 
@@ -333,6 +374,51 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 84-1;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 200-1;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
@@ -536,11 +622,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+
+
+
+	//this is for calculating motor speed
     if (htim->Instance == TIM4)
     {
     	motorVelocity = ((motorPosition - oldMotorPosition)*ENCODER_VEL_SAMPLE_FREQ);
     	oldMotorPosition = motorPosition;
     }
+
+    //this is for the current loop
+    if (htim->Instance == TIM2)
+   {
+    	static int counter = 0;
+    	static float desired_current = 200.0;
+    	static float eint = 0;
+
+
+
+   }
 
 }
 

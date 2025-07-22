@@ -9,6 +9,7 @@
 #include "encoder.h"
 
 volatile int motorPosition = 0;
+volatile int oldMotorPosition = 0;
 volatile int64_t motorVelocity = 0;
 
 int read_encoder_counts(){

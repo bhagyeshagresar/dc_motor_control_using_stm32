@@ -314,8 +314,38 @@ namespace GUI
             }
         }
 
-       
+        private void stopBtn_Click(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "p\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
 
+            }
+        }
+
+        private void testCurrentControlBtn_Click(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "k\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
+
+        private void setCurrentGainsBtn_Click(object sender, EventArgs e)
+        {
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                string message = "g\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(message);
+                serialPort.Write(buffer, 0, buffer.Length);
+
+            }
+        }
     }
     
 }

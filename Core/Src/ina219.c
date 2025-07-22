@@ -5,9 +5,9 @@
  *      Author: Bhagyesh Agresar
  */
 
-#include "isense.h"
-#include "stm32f4xx_hal.h"
+#include <ina219.h>
 #include <string.h>
+#include "stm32f4xx_hal.h"
 
 volatile int16_t shunt_adc_cnts = 0;
 volatile int16_t current = 0;

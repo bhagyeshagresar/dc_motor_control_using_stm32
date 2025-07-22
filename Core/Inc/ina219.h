@@ -5,8 +5,8 @@
  *      Author: bhagy
  */
 
-#ifndef INC_ISENSE_H_
-#define INC_ISENSE_H_
+#ifndef INC_INA219_H_
+#define INC_INA219_H_
 
 #include "stm32f4xx_hal.h"
 
@@ -31,4 +31,4 @@ int read_current_amps(I2C_HandleTypeDef* I2C_Handle);
 
 
 
-#endif /* INC_ISENSE_H_ */
+#endif /* INC_INA219_H_ */

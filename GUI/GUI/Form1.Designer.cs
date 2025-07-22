@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.pwmTextBox = new System.Windows.Forms.TextBox();
             this.setDutyCycleLabel = new System.Windows.Forms.Label();
             this.sendPwmBtn = new System.Windows.Forms.Button();
@@ -46,6 +46,7 @@
             this.shuntVoltageTxtBox = new System.Windows.Forms.TextBox();
             this.readShuntVoltageBtn = new System.Windows.Forms.Button();
             this.motorControlGrpBox = new System.Windows.Forms.GroupBox();
+            this.stopBtn = new System.Windows.Forms.Button();
             this.setPositionGainsGrpBox = new System.Windows.Forms.GroupBox();
             this.goToAngleBtn = new System.Windows.Forms.Button();
             this.positionKdTxtBox = new System.Windows.Forms.TextBox();
@@ -203,6 +204,7 @@
             // 
             // motorControlGrpBox
             // 
+            this.motorControlGrpBox.Controls.Add(this.stopBtn);
             this.motorControlGrpBox.Controls.Add(this.setPositionGainsGrpBox);
             this.motorControlGrpBox.Controls.Add(this.label2);
             this.motorControlGrpBox.Controls.Add(this.setCurrentGainsGrpBox);
@@ -211,10 +213,20 @@
             this.motorControlGrpBox.Controls.Add(this.pwmTextBox);
             this.motorControlGrpBox.Location = new System.Drawing.Point(15, 313);
             this.motorControlGrpBox.Name = "motorControlGrpBox";
-            this.motorControlGrpBox.Size = new System.Drawing.Size(368, 444);
+            this.motorControlGrpBox.Size = new System.Drawing.Size(368, 501);
             this.motorControlGrpBox.TabIndex = 4;
             this.motorControlGrpBox.TabStop = false;
             this.motorControlGrpBox.Text = "Motor Control Settings";
+            // 
+            // stopBtn
+            // 
+            this.stopBtn.Location = new System.Drawing.Point(19, 98);
+            this.stopBtn.Name = "stopBtn";
+            this.stopBtn.Size = new System.Drawing.Size(101, 31);
+            this.stopBtn.TabIndex = 11;
+            this.stopBtn.Text = "Stop";
+            this.stopBtn.UseVisualStyleBackColor = true;
+            this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
             // 
             // setPositionGainsGrpBox
             // 
@@ -226,7 +238,7 @@
             this.setPositionGainsGrpBox.Controls.Add(this.label4);
             this.setPositionGainsGrpBox.Controls.Add(this.positionKpTxtBox);
             this.setPositionGainsGrpBox.Controls.Add(this.label5);
-            this.setPositionGainsGrpBox.Location = new System.Drawing.Point(6, 268);
+            this.setPositionGainsGrpBox.Location = new System.Drawing.Point(6, 301);
             this.setPositionGainsGrpBox.Name = "setPositionGainsGrpBox";
             this.setPositionGainsGrpBox.Size = new System.Drawing.Size(346, 129);
             this.setPositionGainsGrpBox.TabIndex = 10;
@@ -237,7 +249,7 @@
             // 
             this.goToAngleBtn.Location = new System.Drawing.Point(6, 97);
             this.goToAngleBtn.Name = "goToAngleBtn";
-            this.goToAngleBtn.Size = new System.Drawing.Size(139, 26);
+            this.goToAngleBtn.Size = new System.Drawing.Size(101, 26);
             this.goToAngleBtn.TabIndex = 10;
             this.goToAngleBtn.Text = "Go to angle (deg)";
             this.goToAngleBtn.UseVisualStyleBackColor = true;
@@ -316,7 +328,7 @@
             this.setCurrentGainsGrpBox.Controls.Add(this.label1);
             this.setCurrentGainsGrpBox.Controls.Add(this.currentKpTxtBox);
             this.setCurrentGainsGrpBox.Controls.Add(this.label3);
-            this.setCurrentGainsGrpBox.Location = new System.Drawing.Point(6, 110);
+            this.setCurrentGainsGrpBox.Location = new System.Drawing.Point(6, 142);
             this.setCurrentGainsGrpBox.Name = "setCurrentGainsGrpBox";
             this.setCurrentGainsGrpBox.Size = new System.Drawing.Size(346, 141);
             this.setCurrentGainsGrpBox.TabIndex = 9;
@@ -327,10 +339,11 @@
             // 
             this.testCurrentControlBtn.Location = new System.Drawing.Point(6, 80);
             this.testCurrentControlBtn.Name = "testCurrentControlBtn";
-            this.testCurrentControlBtn.Size = new System.Drawing.Size(139, 26);
+            this.testCurrentControlBtn.Size = new System.Drawing.Size(101, 26);
             this.testCurrentControlBtn.TabIndex = 9;
             this.testCurrentControlBtn.Text = "Test Current Control";
             this.testCurrentControlBtn.UseVisualStyleBackColor = true;
+            this.testCurrentControlBtn.Click += new System.EventHandler(this.testCurrentControlBtn_Click);
             // 
             // setCurrentGainsBtn
             // 
@@ -340,6 +353,7 @@
             this.setCurrentGainsBtn.TabIndex = 4;
             this.setCurrentGainsBtn.Text = "Set ";
             this.setCurrentGainsBtn.UseVisualStyleBackColor = true;
+            this.setCurrentGainsBtn.Click += new System.EventHandler(this.setCurrentGainsBtn_Click);
             // 
             // CurrentKiTxtBox
             // 
@@ -391,16 +405,16 @@
             // 
             // chart_CurrentControl
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chart_CurrentControl.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart_CurrentControl.Legends.Add(legend1);
+            chartArea4.Name = "ChartArea1";
+            this.chart_CurrentControl.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.chart_CurrentControl.Legends.Add(legend4);
             this.chart_CurrentControl.Location = new System.Drawing.Point(429, 123);
             this.chart_CurrentControl.Name = "chart_CurrentControl";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart_CurrentControl.Series.Add(series1);
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            this.chart_CurrentControl.Series.Add(series4);
             this.chart_CurrentControl.Size = new System.Drawing.Size(802, 473);
             this.chart_CurrentControl.TabIndex = 8;
             this.chart_CurrentControl.Text = "chart1";
@@ -469,6 +483,7 @@
         private System.Windows.Forms.TextBox statusTextBox;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart_CurrentControl;
         private System.Windows.Forms.Timer timer_ChartUpdate;
+        private System.Windows.Forms.Button stopBtn;
     }
 }
 
