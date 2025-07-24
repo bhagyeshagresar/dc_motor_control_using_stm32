@@ -22,6 +22,8 @@ namespace GUI
         private int shuntVoltage = 0;
         private int currentAmps = 0;
         private int encoderDegrees = 0;
+        private int curr_kp = 0;
+        private int curr_ki = 0;
         string stm32_response = null;
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
@@ -231,6 +233,27 @@ namespace GUI
                         //MessageBox.Show("Please enter a valid number.");
                     }
                 }
+
+
+                if (stm32_response.StartsWith("CURR_Kp_Ki:"))
+                {
+                    if (serialPort != null && serialPort.IsOpen)
+                    {
+                        int curr_kp = int.Parse(currentKpTxtBox.Text);
+                        int curr_ki = int.Parse(CurrentKiTxtBox.Text);
+
+                        byte[] kpBytes = BitConverter.GetBytes(curr_kp); // 4 bytes
+                        byte[] kiBytes = BitConverter.GetBytes(curr_ki); // 4 bytes
+
+                        // Optional: Add a simple header (e.g., 0xAA, 0x55) to signal start
+                        byte[] packet = new byte[8];
+                        Array.Copy(kpBytes, 0, packet, 0, 4);
+                        Array.Copy(kiBytes, 0, packet, 4, 4);
+
+                        serialPort.Write(packet, 0, packet.Length);
+                    }
+                }
+
 
 
             }

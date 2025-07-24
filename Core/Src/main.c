@@ -271,22 +271,23 @@ int main(void)
 			//set the current gains by reading kp and ki over serial and update the current control kp and ki
 
 			//Send response to the GUI
-			sprintf(tx_bytes, "CURR_Kp_Ki\n");
+			sprintf(tx_bytes, "CURR_Kp_Ki:\n");
 			buff_size = strlen(tx_bytes);
 			HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
-		    //TODO: read the Kp and Ki from GUI
+		    read the Kp and Ki from GUI
+			ret = HAL_UART_Receive(&huart2, rx_bytes, 10, HAL_MAX_DELAY);
 
-
-			//TODO: update kp and ki in the firmware
-
+			update kp and ki in the firmware
+			memcpy(&kp_current, &rx_bytes[0], 4);
+			memcpy(&ki_current, &rx_bytes[4], 4);
 
 
 		   break;
 
 		 case 'h':
 			 //get current gains
-
+			 //TODO: also add a button for get current gains in GUI
 
 		   break;
 	  }
@@ -639,7 +640,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	static float desired_current = 200.0;
     	static float eint = 0;
 
-
+    	if(counter == 25){
+    		desired_current = 200;
+    	}
+    	else if(counter == 50){
+    		desired_current = -200;
+    	}
 
    }
 
