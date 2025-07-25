@@ -43,6 +43,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define MSG_SIZE 100
+#define EINTMAX 1000
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -275,13 +276,12 @@ int main(void)
 			buff_size = strlen(tx_bytes);
 			HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
-		    read the Kp and Ki from GUI
+		    //read the Kp and Ki from GUI
 			ret = HAL_UART_Receive(&huart2, rx_bytes, 10, HAL_MAX_DELAY);
 
-			update kp and ki in the firmware
+			//update kp and ki in the firmware
 			memcpy(&kp_current, &rx_bytes[0], 4);
 			memcpy(&ki_current, &rx_bytes[4], 4);
-
 
 		   break;
 
@@ -624,8 +624,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 
-
-
 	//this is for calculating motor speed
     if (htim->Instance == TIM4)
     {
@@ -633,19 +631,74 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	oldMotorPosition = motorPosition;
     }
 
-    //this is for the current loop
+    //TODO: Handle state machine in here for pwm mode, ITEST mode, etc.
+    //TODO: add arrays for plotting reference vs controlled current
     if (htim->Instance == TIM2)
    {
     	static int counter = 0;
     	static float desired_current = 200.0;
     	static float eint = 0;
+    	static float e = 0;
+    	static float eprev = 0;
 
-    	if(counter == 25){
-    		desired_current = 200;
-    	}
-    	else if(counter == 50){
-    		desired_current = -200;
-    	}
+    	switch(get_mode()){
+
+
+			case ITEST:
+
+				//increment the counter everytime the ISR is fired
+				counter++;
+				if(counter == 25){
+					desired_current = 200;
+				}
+				else if(counter == 50){
+					desired_current = -200;
+				}
+				else if(counter == 75){
+					desired_current = 200;
+				}
+				else{
+					//switch to IDLE mode, the ITEST is over
+					desired_current = -200;
+					set_mode(IDLE);
+				}
+
+
+
+				float measured_current = read_current_amps(&hi2c1);
+				e = desired_current - measured_current;
+				eint = eprev + e;
+
+				//make sure there is no integrator windup
+				if(eint > EINTMAX){
+					eint = EINTMAX;
+				}
+
+				if (eint < -EINTMAX)
+				{
+					eint = -EINTMAX;
+				}
+
+				//calculate the controlled output
+				float u = (kp_current*e) + (ki_current*eint);
+
+				//cap the duty cycle between -100 and 100
+				if(u > 100){
+					u = 100;
+				}
+				else if(u < -100){
+					u = -100;
+				}
+
+				//set the new pwm
+				htim3.Instance->CCR3 = u;
+
+				//update the previous error
+				eprev = e;
+
+			break;
+
+			}
 
    }
 

@@ -251,6 +251,14 @@ namespace GUI
                         Array.Copy(kiBytes, 0, packet, 4, 4);
 
                         serialPort.Write(packet, 0, packet.Length);
+
+                        this.Invoke(new Action(() =>
+                        {
+                            //this should read encoder cnts as zero
+                            statusTextBox.Text = "Current Gains set to:" + "Kp:" + curr_kp.ToString() + "Ki:" + curr_ki.ToString();
+
+                        }));
+
                     }
                 }
 

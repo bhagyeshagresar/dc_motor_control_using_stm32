@@ -9,17 +9,17 @@
 #define INC_UTILITIES_H_
 
 
-enum mode_set
+typedef enum mode_set
 { IDLE,
   PWM,
   ITEST,
   HOLD,
   TRACK
-};
+}mode;
 
 
 void set_mode(enum mode_set);
-enum mode_set get_mode();
+mode get_mode();
 void set_pwm(int);
 int get_pwm();
 

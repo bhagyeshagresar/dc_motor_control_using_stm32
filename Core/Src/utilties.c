@@ -7,15 +7,15 @@
 
 #include "utilities.h"
 
-enum mode_set mode;
+mode _mode;
 int pwm = 0;
 
-enum mode_set get_mode(){
-	return mode;
+mode get_mode(){
+	return _mode;
 }
 
-void set_mode(enum mode_set m){
-	mode = m;
+void set_mode(mode m){
+	_mode = m;
 }
 
 
