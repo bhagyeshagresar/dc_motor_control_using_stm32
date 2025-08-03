@@ -17,8 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-
-
+#include "main.h"
 #include <string.h>
 #include <stdio.h>
 /* Private includes ----------------------------------------------------------*/
@@ -56,7 +55,7 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint8_t pwm_rx_bytes[4];
+volatile uint8_t pwm_rx_bytes[4];
 uint8_t rx_bytes[100];
 volatile uint32_t result;
 char tx_bytes[100];
@@ -123,7 +122,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim4);
   current_sensor_init(status_buff, &hi2c1);
-
+  set_mode(IDLE); //Set mode to IDLE initially
   //test
   //char buffer[2];
   //ret = HAL_I2C_Mem_Read(&hi2c1, INA219_ADDR, INA219_CONFIG_REG, I2C_MEMADD_SIZE_8BIT, buffer, 2, 100);
@@ -159,6 +158,8 @@ int main(void)
 	  }
 
 	  switch(rx_bytes[0]){
+
+
 		 case 'a':
 			 //send encoder counts
 			 encoder_cnts = read_encoder_counts();
@@ -206,6 +207,7 @@ int main(void)
 
 
 		 case 'f':
+
 			 //send response to the GUI
 			 sprintf(tx_bytes, "PWM_REQ:\n");
 			 buff_size = strlen(tx_bytes);
@@ -214,10 +216,8 @@ int main(void)
 			 //read the duty cycle from the GUI
 			 ret = HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
 
-			 //Set the new duty cycle
-			 //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
-			 result = (pwm_rx_bytes[3] << 24) | (pwm_rx_bytes[2] << 16) | (pwm_rx_bytes[1] << 8) | (pwm_rx_bytes[0]);
-			 htim3.Instance->CCR3 = result;
+			 //pwm mode
+			 set_mode(PWM);
 
 			 if(ret == HAL_OK){
 				strcpy(status_buff, "sent bytes of data\r\n");
@@ -229,7 +229,7 @@ int main(void)
 
 		 case 'p':
 			 //stop the motor
-			 htim3.Instance->CCR3 = 0;
+			 set_mode(IDLE);
 			 break;
 
 		 case 'd':
@@ -278,6 +278,14 @@ int main(void)
 
 		    //read the Kp and Ki from GUI
 			ret = HAL_UART_Receive(&huart2, rx_bytes, 10, HAL_MAX_DELAY);
+
+			if(ret == HAL_OK){
+				strcpy(status_buff, "read bytes of data\r\n");
+			}
+			else{
+				strcpy(status_buff, "problem with reading data\r\n");
+			  }
+			 break;
 
 			//update kp and ki in the firmware
 			memcpy(&kp_current, &rx_bytes[0], 4);
@@ -643,7 +651,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     	switch(get_mode()){
 
+    	   case PWM:
+    		   //Set the new duty cycle
+    		   //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
+			   result = (pwm_rx_bytes[3] << 24) | (pwm_rx_bytes[2] << 16) | (pwm_rx_bytes[1] << 8) | (pwm_rx_bytes[0]);
+			   htim3.Instance->CCR3 = result;
+			   //set_mode(IDLE);
 
+    		   break;
 			case ITEST:
 
 				//increment the counter everytime the ISR is fired
@@ -662,8 +677,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					desired_current = -200;
 					set_mode(IDLE);
 				}
-
-
 
 				float measured_current = read_current_amps(&hi2c1);
 				e = desired_current - measured_current;
@@ -698,7 +711,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			break;
 
+			case IDLE:
+				htim3.Instance->CCR3 = 0; //zero out the duty cycle
+
+				break;
+
 			}
+
 
    }
 

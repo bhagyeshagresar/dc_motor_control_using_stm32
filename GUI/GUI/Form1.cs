@@ -211,6 +211,8 @@ namespace GUI
                         {
                             byte[] data = BitConverter.GetBytes(dutyCycle); // little endian by default
                             serialPort.Write(data, 0, data.Length);
+                            // Convert the buffer back to a string for display
+                            string sentMessage = Encoding.UTF8.GetString(data);
 
                             this.Invoke(new Action(() =>
                             {
@@ -352,6 +354,10 @@ namespace GUI
                 string message = "p\n";
                 byte[] buffer = Encoding.UTF8.GetBytes(message);
                 serialPort.Write(buffer, 0, buffer.Length);
+
+                //this should read encoder cnts as zero
+                statusTextBox.Text = "Duty Cycle set to: 0";
+                pwmTextBox.Text = "0";
 
             }
         }

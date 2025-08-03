@@ -10,11 +10,9 @@
 
 
 typedef enum mode_set
-{ IDLE,
-  PWM,
-  ITEST,
-  HOLD,
-  TRACK
+{ IDLE,   //Put the H-bridge in brake mode
+  PWM,    //In this mode, set the user defined duty cycle (-100 <= pwm <= 100)
+  ITEST  //Perform the PI Current Control test using reference current
 }mode;
 
 
