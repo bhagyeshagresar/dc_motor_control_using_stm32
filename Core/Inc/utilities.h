@@ -16,9 +16,7 @@ typedef enum mode_set
 }mode;
 
 
-void set_mode(enum mode_set);
+void set_mode(mode m);
 mode get_mode();
-void set_pwm(int);
-int get_pwm();
 
 #endif /* INC_UTILITIES_H_ */

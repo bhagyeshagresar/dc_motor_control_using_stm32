@@ -1,6 +1,5 @@
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.csproj.AssemblyReference.cache
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.csproj.SuggestedBindingRedirects.cache
-C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.Form1.resources
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.Properties.Resources.resources
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.csproj.GenerateResource.cache
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.csproj.CoreCompileInputs.cache
@@ -62,3 +61,4 @@ C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM3
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\bin\Debug\System.ValueTuple.xml
 C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.csproj.CopyComplete
+C:\Users\bhagy\STM32CubeIDE\workspace_1.12.0\Brushed_DC_Motor_Control_Using_STM32\GUI\GUI\obj\Debug\GUI.motorControllerGUI.resources

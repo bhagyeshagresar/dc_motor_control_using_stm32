@@ -2,10 +2,11 @@
  * current.c
  *
  *  Created on: Jul 21, 2025
- *      Author: bhagy
+ *      Author: Bhagyesh
  */
 
 #include "current.h"
+#include <stdio.h>
 
 
 volatile float kp_current = 0.05;
@@ -19,7 +20,6 @@ void set_current_gains(float kp, float ki){
 
 }
 
-
 float get_current_kp(){
 	return kp_current;
 }
@@ -27,3 +27,4 @@ float get_current_kp(){
 float get_current_ki(){
 	return ki_current;
 }
+

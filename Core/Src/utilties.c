@@ -7,7 +7,7 @@
 
 #include "utilities.h"
 
-mode _mode;
+volatile mode _mode;
 int pwm = 0;
 
 mode get_mode(){
@@ -19,10 +19,3 @@ void set_mode(mode m){
 }
 
 
-void set_pwm(int a){
-	pwm = a;
-}
-
-int get_pwm(){
-	return pwm;
-}

@@ -12,7 +12,7 @@
 volatile int16_t shunt_adc_cnts = 0;
 volatile int16_t current = 0;
 
-int read_adc_counts(I2C_HandleTypeDef* I2C_Handle_Ptr){
+int16_t read_adc_counts(I2C_HandleTypeDef* I2C_Handle_Ptr){
 
 	uint8_t shunt_adc_data[2];
 
@@ -25,7 +25,7 @@ int read_adc_counts(I2C_HandleTypeDef* I2C_Handle_Ptr){
 }
 
 
-int read_current_amps(I2C_HandleTypeDef* I2C_Handle_Ptr){
+int16_t read_current_amps(I2C_HandleTypeDef* I2C_Handle_Ptr){
 	uint8_t current_amps_data[2];
 
 	HAL_I2C_Mem_Read(I2C_Handle_Ptr, INA219_ADDR, INA219_CURRENT_REG, I2C_MEMADD_SIZE_8BIT, current_amps_data, 2, 100);

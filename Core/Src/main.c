@@ -57,12 +57,15 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 volatile uint8_t pwm_rx_bytes[4];
 uint8_t rx_bytes[100];
-volatile uint32_t result;
+volatile int result;
 char tx_bytes[100];
+char itest_message[100];
 volatile int encoder_cnts = 0;
 volatile int encoder_cnts_deg = 0;
 volatile int current_adc_cnts = 0;
 volatile int current_mA = 0;
+volatile int required_current[100];
+volatile int actual_current[100];
 uint8_t buff_size = 0;
 /* USER CODE END PV */
 
@@ -205,33 +208,6 @@ int main(void)
 			  }
 			 break;
 
-
-		 case 'f':
-
-			 //send response to the GUI
-			 sprintf(tx_bytes, "PWM_REQ:\n");
-			 buff_size = strlen(tx_bytes);
-			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
-
-			 //read the duty cycle from the GUI
-			 ret = HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
-
-			 //pwm mode
-			 set_mode(PWM);
-
-			 if(ret == HAL_OK){
-				strcpy(status_buff, "sent bytes of data\r\n");
-			}
-			else{
-				strcpy(status_buff, "problem with sending data\r\n");
-			  }
-			 break;
-
-		 case 'p':
-			 //stop the motor
-			 set_mode(IDLE);
-			 break;
-
 		 case 'd':
 			 //send adc counts
 			 current_adc_cnts = read_adc_counts(&hi2c1);
@@ -262,11 +238,55 @@ int main(void)
 			  }
 			 break;
 
+		 case 'f':
+
+			 //send response to the GUI
+			 sprintf(tx_bytes, "PWM_REQ:\n");
+			 buff_size = strlen(tx_bytes);
+			 ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+
+			 //read the duty cycle from the GUI
+			 ret = HAL_UART_Receive(&huart2, pwm_rx_bytes, 4, HAL_MAX_DELAY);
+
+			 //pwm mode
+			 set_mode(PWM);
+
+			 if(ret == HAL_OK){
+				strcpy(status_buff, "sent bytes of data\r\n");
+			}
+			else{
+				strcpy(status_buff, "problem with sending data\r\n");
+			  }
+			 break;
+
+		 case 'p':
+			 //stop the motor
+			 set_mode(IDLE);
+			 break;
+
 		 case 'k':
 			 //set the mode to current test
 			 set_mode(ITEST);
+			 while(get_mode() == ITEST){
+				 ;
+			 }
 
-			 break;
+			 //ITEST mode is done, let's print
+			sprintf(tx_bytes, "ITEST_DATA_START:\n");
+			buff_size = strlen(tx_bytes);
+			ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+
+			for(int i = 0;i < 100; i++){
+				sprintf(itest_message, "%d %d\r\n", required_current[i], actual_current[i]);
+				HAL_UART_Transmit(&huart2, (uint8_t*)itest_message, strlen(itest_message), HAL_MAX_DELAY);
+			}
+			sprintf(tx_bytes, "ITEST_DATA_COMPLETE:\n");
+			buff_size = strlen(tx_bytes);
+		    ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
+
+
+
+		    break;
 
 		 case 'g':
 			//set the current gains by reading kp and ki over serial and update the current control kp and ki
@@ -298,6 +318,8 @@ int main(void)
 			 //TODO: also add a button for get current gains in GUI
 
 		   break;
+
+
 	  }
     /* USER CODE END WHILE */
 
@@ -644,10 +666,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM2)
    {
     	static int counter = 0;
-    	static float desired_current = 200.0;
-    	static float eint = 0;
-    	static float e = 0;
-    	static float eprev = 0;
+    	static int desired_current = 200.0;
+    	static int eint = 0;
+    	static int e = 0;
+    	static int eprev = 0;
 
     	switch(get_mode()){
 
@@ -655,32 +677,59 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     		   //Set the new duty cycle
     		   //Read data coming from the serial - rx_bytes = MSB-> 0x04 0x03 0x02 0x01 <- LSB assume this is the order for now
 			   result = (pwm_rx_bytes[3] << 24) | (pwm_rx_bytes[2] << 16) | (pwm_rx_bytes[1] << 8) | (pwm_rx_bytes[0]);
-			   htim3.Instance->CCR3 = result;
-			   //set_mode(IDLE);
+
+
+			   if(result > 0){
+
+				   if(result > 100){
+					   result = 100;
+				   }
+				   // Sets PA8 high
+				   GPIOA->BSRR = (1 << 8);
+				   htim3.Instance->CCR3 = result;
+			   }
+			   else{
+
+				   if(result < -100){
+					   result = -100;
+				   }
+
+				   // Sets PA8 to low
+				   GPIOA->BSRR = (1 << (8 + 16));
+				   htim3.Instance->CCR3 = -result;
+			   }
 
     		   break;
+
 			case ITEST:
 
 				//increment the counter everytime the ISR is fired
 				counter++;
-				if(counter == 25){
-					desired_current = 200;
+				if (counter == 25)
+				{
+					desired_current = -200.0;
 				}
-				else if(counter == 50){
-					desired_current = -200;
+
+				if(counter == 50)
+				{
+					desired_current = 200.0;
 				}
-				else if(counter == 75){
-					desired_current = 200;
+
+				if(counter == 75)
+				{
+					desired_current = -200.0;
 				}
-				else{
-					//switch to IDLE mode, the ITEST is over
-					desired_current = -200;
+
+				if(counter == 100){
+					counter = 0;
+					desired_current = 200.0;
+					eint = 0;
 					set_mode(IDLE);
 				}
 
-				float measured_current = read_current_amps(&hi2c1);
-				e = desired_current - measured_current;
-				eint = eprev + e;
+				int measured_current = read_current_amps(&hi2c1); //read the actual current
+				e = desired_current - measured_current; //compute the error
+				eint = eprev + e; //add the error
 
 				//make sure there is no integrator windup
 				if(eint > EINTMAX){
@@ -693,7 +742,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 
 				//calculate the controlled output
-				float u = (kp_current*e) + (ki_current*eint);
+				int u = (kp_current*e) + (ki_current*eint);
 
 				//cap the duty cycle between -100 and 100
 				if(u > 100){
@@ -709,7 +758,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				//update the previous error
 				eprev = e;
 
-			break;
+				required_current[counter] = desired_current;
+				actual_current[counter] = measured_current;
+
+				break;
 
 			case IDLE:
 				htim3.Instance->CCR3 = 0; //zero out the duty cycle
@@ -717,7 +769,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				break;
 
 			}
-
 
    }
 
