@@ -64,8 +64,8 @@ volatile int encoder_cnts = 0;
 volatile int encoder_cnts_deg = 0;
 volatile int current_adc_cnts = 0;
 volatile int current_mA = 0;
-volatile int required_current[100];
-volatile int actual_current[100];
+volatile float required_current[100];
+volatile float actual_current[100];
 uint8_t buff_size = 0;
 /* USER CODE END PV */
 
@@ -277,7 +277,7 @@ int main(void)
 			ret = HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 			for(int i = 0;i < 100; i++){
-				sprintf(itest_message, "%d %d\r\n", required_current[i], actual_current[i]);
+				sprintf(itest_message, "%f %f\r\n", required_current[i], actual_current[i]);
 				HAL_UART_Transmit(&huart2, (uint8_t*)itest_message, strlen(itest_message), HAL_MAX_DELAY);
 			}
 			sprintf(tx_bytes, "ITEST_DATA_COMPLETE:\n");
@@ -297,19 +297,26 @@ int main(void)
 			HAL_UART_Transmit(&huart2, (uint8_t*)tx_bytes, buff_size, HAL_MAX_DELAY);
 
 		    //read the Kp and Ki from GUI
-			ret = HAL_UART_Receive(&huart2, rx_bytes, 10, HAL_MAX_DELAY);
+			ret = HAL_UART_Receive(&huart2, rx_bytes, 8, HAL_MAX_DELAY);
 
-			if(ret == HAL_OK){
-				strcpy(status_buff, "read bytes of data\r\n");
+			 if (ret == HAL_OK)
+			{
+				// Data was received successfully.
+				// Update the global kp_current and ki_current variables.
+				// The memcpy function is correct for this.
+				memcpy(&kp_current, &rx_bytes[0], 4);
+				memcpy(&ki_current, &rx_bytes[4], 4);
+
+				// Optional: Send a confirmation message back to the GUI
+				sprintf(status_buff, "Gains updated to Kp:%.2f, Ki:%.2f\r\n", kp_current, ki_current);
+				HAL_UART_Transmit(&huart2, (uint8_t*)status_buff, strlen(status_buff), HAL_MAX_DELAY);
 			}
-			else{
-				strcpy(status_buff, "problem with reading data\r\n");
-			  }
-			 break;
-
-			//update kp and ki in the firmware
-			memcpy(&kp_current, &rx_bytes[0], 4);
-			memcpy(&ki_current, &rx_bytes[4], 4);
+			else
+			{
+				// There was a problem reading the data
+				sprintf(status_buff, "Problem with reading data\r\n");
+				HAL_UART_Transmit(&huart2, (uint8_t*)status_buff, strlen(status_buff), HAL_MAX_DELAY);
+			}
 
 		   break;
 
@@ -666,10 +673,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM2)
    {
     	static int counter = 0;
-    	static int desired_current = 200.0;
-    	static int eint = 0;
-    	static int e = 0;
-    	static int eprev = 0;
+    	static float desired_current = 200.0;
+    	static float eint = 0;
+    	static float e = 0;
+    	static float eprev = 0;
 
     	switch(get_mode()){
 
@@ -742,7 +749,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 
 				//calculate the controlled output
-				int u = (kp_current*e) + (ki_current*eint);
+				float u = (kp_current*e) + (ki_current*eint);
 
 				//cap the duty cycle between -100 and 100
 				if(u > 100){
