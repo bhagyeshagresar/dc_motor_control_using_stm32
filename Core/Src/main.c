@@ -735,8 +735,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 
 				int measured_current = read_current_amps(&hi2c1); //read the actual current
-				e = desired_current - measured_current; //compute the error
-				eint = eprev + e; //add the error
+				e = desired_current - (float)measured_current; //compute the error
+				eint = eint + e; //add the error
 
 				//make sure there is no integrator windup
 				if(eint > EINTMAX){
@@ -759,11 +759,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					u = -100;
 				}
 
-				//set the new pwm
-				htim3.Instance->CCR3 = u;
-
-				//update the previous error
-				eprev = e;
+				if (u >= 0) {
+				    GPIOA->BSRR = (1 << 8); // DIR = HIGH
+				    htim3.Instance->CCR3 = (uint32_t)u;
+				} else {
+				    GPIOA->BSRR = (1 << (8 + 16)); // DIR = LOW
+				    htim3.Instance->CCR3 = (uint32_t)-u;
+				}
 
 				required_current[counter] = desired_current;
 				actual_current[counter] = measured_current;
