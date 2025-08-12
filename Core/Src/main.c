@@ -673,7 +673,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM2)
    {
     	static int counter = 0;
-    	static float desired_current = 200.0;
+    	static float desired_current = 100.0;
     	static float eint = 0;
     	static float e = 0;
     	static float eprev = 0;
@@ -714,22 +714,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				counter++;
 				if (counter == 25)
 				{
-					desired_current = -200.0;
+					desired_current = -100.0;
 				}
 
 				if(counter == 50)
 				{
-					desired_current = 200.0;
+					desired_current = 100.0;
 				}
 
 				if(counter == 75)
 				{
-					desired_current = -200.0;
+					desired_current = -100.0;
 				}
 
 				if(counter == 100){
 					counter = 0;
-					desired_current = 200.0;
+					desired_current = 100.0;
 					eint = 0;
 					set_mode(IDLE);
 				}
