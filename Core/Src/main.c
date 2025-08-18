@@ -55,11 +55,15 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+extern volatile float kp_current;
+extern volatile float ki_current;
 volatile uint8_t pwm_rx_bytes[4];
 uint8_t rx_bytes[100];
 volatile int result;
 char tx_bytes[100];
 char itest_message[100];
+volatile int measured_current;
+volatile int check_current_flag = 0;
 volatile int encoder_cnts = 0;
 volatile int encoder_cnts_deg = 0;
 volatile int current_adc_cnts = 0;
@@ -268,6 +272,10 @@ int main(void)
 			 //set the mode to current test
 			 set_mode(ITEST);
 			 while(get_mode() == ITEST){
+				 /*if(check_current_flag == 1){
+					 check_current_flag = 0;
+					 measured_current = read_current_amps(&hi2c1);
+				 }*/
 				 ;
 			 }
 
@@ -676,7 +684,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	static float desired_current = 100.0;
     	static float eint = 0;
     	static float e = 0;
-    	static float eprev = 0;
+
 
     	switch(get_mode()){
 
@@ -734,8 +742,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					set_mode(IDLE);
 				}
 
-				int measured_current = read_current_amps(&hi2c1); //read the actual current
-				e = desired_current - (float)measured_current; //compute the error
+				//check_current_flag = 1; //read the actual current
+				measured_current = read_current_amps(&hi2c1);
+				e = desired_current - measured_current; //compute the error
 				eint = eint + e; //add the error
 
 				//make sure there is no integrator windup
